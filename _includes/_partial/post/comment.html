@@ -9,7 +9,7 @@
         clientSecret: "{{ site.gittalk.clientSecret }}",
         repo: "{{ site.gittalk.repo }}",
         owner: "{{ site.gittalk.owner }}",
-        admin: "[ {{ site.gittalk.admin }} ]",
+        admin: "{{ site.gittalk.admin }}",
         id: decodeURI(window.location.pathname)
     });
     gitalk.render('gittalk-container');
