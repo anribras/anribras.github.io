@@ -5,11 +5,11 @@
   <div id='gittalk-container' data-thread-key="{{ page.id }}" data-title="{{ page.title }}" data-url="{{ site.url }}{{ site.baseurl }}{{ page.url }}"></div>
   <script type="text/javascript">
     var gitalk = new Gitalk({
-        clientID: "{{ site.gittalk.clientID }}",
-        clientSecret: "{{ site.gittalk.clientSecret }}",
-        repo: "{{ site.gittalk.repo }}",
-        owner: "{{ site.gittalk.owner }}",
-        admin: "{{ site.gittalk.admin }}",
+        clientID: '{{ site.gittalk.clientID }}',
+        clientSecret: '{{ site.gittalk.clientSecret }}',
+        repo: '{{ site.gittalk.repo }}',
+        owner: '{{ site.gittalk.owner }}',
+        admin: ['{{ site.gittalk.admin }}'],
         id: decodeURI(window.location.pathname)
     });
     gitalk.render('gittalk-container');
