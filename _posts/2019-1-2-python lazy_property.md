@@ -8,4 +8,4 @@ image:
 comments: true
 ---
 
-(https://github.com/anribras/pythonNotes/blob/master/lazy_property.ipynb)
+<https://github.com/anribras/pythonNotes/blob/master/lazy_property.ipynb>

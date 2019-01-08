@@ -26,9 +26,9 @@ comments: true
 * cs229 
 * cs231
 
-[1](https://blog.csdn.net/sinat_37965706/article/details/69204397)
+<https://blog.csdn.net/sinat_37965706/article/details/69204397>
 
-[2](http://www.cnblogs.com/jerrylead/archive/2011/03/05/1971867.html)
+<http://www.cnblogs.com/jerrylead/archive/2011/03/05/1971867.html>
 
 另外编程语言是octave，要想加深能力，还需要在python/c++的其他框架多做实现。
 
