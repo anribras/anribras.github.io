@@ -3,7 +3,7 @@ layout: post
 title:
 modified:
 categories: Tech
-tags: [python,leetcode]
+tags: [python]
 image:
 comments: true
 ---
