@@ -8,5 +8,5 @@ image:
 comments: true
 ---
 
-<https://github.com/anribras/pythonNotes/blob/master/weakref.ipynb>
+<https://nbviewer.jupyter.org/github/anribras/pythonNotes/blob/master/weakref.ipynb>
 

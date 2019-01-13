@@ -8,4 +8,5 @@ image:
 comments: true
 ---
 
-<https://nbviewer.jupyter.org/github/anribras/pythonNotes/blob/master/lazy_property.ipynb>
+<https://nbviewer.jupyter.org/github/anribras/pythonNotes/blob/master/decorator.ipynb>
+
