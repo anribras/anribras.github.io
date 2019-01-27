@@ -26,15 +26,20 @@ comments: true
 
 ## 基本概念
 
+`broker` RabbitMQ Server就是Message Broker,包含了exchange和queue的实体.
+
 `producer` 生产者
 
 `exchange` 发往queue的路由,不同type决定了不同的路由方式，有fanout,direct,topic,headers
 
-`queue`:队列 
+`queue`:队列 ,存储producer发来的消息的实体
 
-`consumer`:消费者
+`consumer`:消费者,连接到不同的queue消费消息.
 
-`channel`:一次连接的虚拟表示为channel 
+
+`connect`是producer or consumer 到mq server的tcp链接.
+
+`channel`:一次连接的虚拟表示为channel( exchange->queue) 1个producer可能在1个channel 建立多个chanel.
 
 ### binding key and routing key
 
