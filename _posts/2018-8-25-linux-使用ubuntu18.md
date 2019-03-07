@@ -6,7 +6,6 @@ categories: Tech
  
 tags: [linux]
 
-  
 comments: true
 ---
 
