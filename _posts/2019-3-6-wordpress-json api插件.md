@@ -74,7 +74,8 @@ $this->response = new JSON_API_Response();
 query是把url里参数转成了对象，方便使用.
 核心动作是get:
 ```php
-  function get($key) {
+  function get($key) 
+  {
     if (is_array($key)) {
       $result = array();
       foreach ($key as $k) {

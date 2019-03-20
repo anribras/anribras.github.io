@@ -68,7 +68,6 @@ add_action( 'wp_ajax_nopriv_wpzan', 'wpzan_callback');
         wp_register_script( 'goto-comments', get_template_directory_uri() . '/core/functions/goto/goto-comments.js', array(), THEME_VERSION);
         wp_enqueue_script('goto-comments');
     } else {
-//                    wp_register_script( 'goto-comments', get_template_directory_uri() . '/core/functions/goto/goto-comments.js', array(), THEME_VERSION);
-//                    wp_dequeue_script('goto-comments');
+        wp_dequeue_script('goto-comments');
     }
 ```

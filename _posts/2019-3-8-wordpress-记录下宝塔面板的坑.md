@@ -11,15 +11,16 @@ comments: true
 
 <!-- TOC -->
 
-    - [云服务器](#云服务器)
+- [云服务器](#云服务器)
 - [bt_panel](#bt_panel)
     - [问题１　php安装失败](#问题１　php安装失败)
     - [问题2 ftp失败](#问题2-ftp失败)
     - [wordpress升级失败](#wordpress升级失败)
+    - [安装WP-DBManager报错](#安装wp-dbmanager报错)
 
 <!-- /TOC -->
 
-### 云服务器
+## 云服务器
 
 阿里云搞活动，香港清凉云下手晚了，买了1个204一年的新加坡清凉云.速度将就，电信的可能还不如我的bwg.
 
@@ -47,5 +48,14 @@ chattr -i /www/wwwroot/149.129.56.27/.user.ini
 chown -R www:root /www/wwwroot  
 ```
 这里是给文件夹nginx默认用户www访问的权限.
+
+### 安装WP-DBManager报错
+
+![Screenshot from 2019-03-13 18-08-00-a2943104-f9e4-418a-baca-d6c8e93e8ad0](https://images-1257933000.cos.ap-chengdu.myqcloud.com/Screenshot%20from%202019-03-13%2018-08-00-a2943104-f9e4-418a-baca-d6c8e93e8ad0.png)
+
+
+openbase_dir设置的问题:
+<https://www.hacksparrow.com/wp-dbmanager-error-mysql-dump-path-does-not-exist-please-check-your-mysqldump-path-under-db-options.html>
         
+<https://blog.csdn.net/fdipzone/article/details/54562656>
         
