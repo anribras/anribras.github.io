@@ -11,11 +11,6 @@ comments: true
 
 ### wordpress引入js脚本
 
-先理解下本地化 <https://www.jb51.net/cms/35409.html>
-
-
-同样的接口，但是也可以用来引入js脚本.
-
 <https://www.solagirl.net/wordpress-ways-to-load-js-css.html>
 
 ```php

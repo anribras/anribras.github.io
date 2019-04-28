@@ -9,6 +9,14 @@ tags: [wordpress]
 comments: true
 ---
 
+<!-- TOC -->
+
+- [_FILE in PHP](#_file-in-php)
+
+<!-- /TOC -->
+
+
+## _FILE in PHP
 本质上还是http的post multipart/form-data提交文件,到PHP的`$_FILE`变量取文件:
 
 ```sh
