@@ -7,17 +7,15 @@ tags: [thinksns]
 comments: true
 ---
 
-
 ## dnmp
 
 这个绝的挺好用的
-
+dnmp: <https://github.com/yeszao/dnmp>
 
 ## thinksns+
 
-* composer
+thinksns+: <https://slimkit.github.io/plus/guide/installation/install-plus.html>
 
-<https://github.com/yeszao/dnmp>
 
 按它的使用docker composer,但是目录要改下.
 
@@ -25,18 +23,29 @@ comments: true
 
 讲道理是有问题的.　先试试在php容器里直接使用composer好了.
 
+```sh
+dphp72 即 docker exec -it dnmp_php72_1 /bin/bash
+```
+
+安装composer:
 ```
 curl -L https://getcomposer.org/composer.phar > /usr/local/bin/composer && \
 chmod +x /usr/local/bin/composer && \
 composer self-update
 ```
-有又错:
+
+切换国内源:
 ```sh
-[ErrorException]                                                                                                              
-  zlib_decode(): data error 
+composer config -g repo.packagist composer https://packagist.laravel-china.org
 ```
-<https://stackoverflow.com/questions/33501240/composer-error-while-installing-laravel-failed-to-decode-response-zlib-decode>
-运行`composer clear-cache` 重新来.
+
+更新下载包:
+```sh
+composer update -vvv
+```
+如果下载中出错,运行`composer clear-cache` 重新来.
+
+按教程继续.
 
 缺少ext-bcmatch:
 
@@ -45,12 +54,36 @@ docker-php-ext-install bcmath
 ```
 
 重启php-fpm后好了。。。继续
+```
+docker restart xxx
+```
+
+
 ```sh
  Illuminate\Database\QueryException  : SQLSTATE[HY000]: General error: 1215 Cannot add foreign key constraint (SQL: alter tabl
 e `role_user` add constraint `role_user_user_id_foreign` foreign key (`user_id`) references `users` (`id`) on delete cascade on 
 update cascade) 
 ```
 迁移数据库时，表有问题?
+不能建立外键，坑死了，找到原始可能是:
+```sh
+1）要关联的字段类型或长度不一致。
+2）两个要关联的表编码不一样。
+3）某个表已经有记录了。
+4）将“删除时”和“更新时”都设置相同，如都设置成CASCADE。
+```
+
+发现role_user表的user_id定义的是int(10),而其关联的主键是bigint(20),遂改之..这个错误应该没了
+
+
+* nginx
+没啥特殊的，站点在`plus/public`下
+
+* storage
+给storage 777权限应该是要写
+```
+chomd 777 -R plus/storage
+```
 
 
 
