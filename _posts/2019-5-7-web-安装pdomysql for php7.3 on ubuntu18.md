@@ -38,6 +38,11 @@ cd PDO_MYSQL
 phpize
 
 # 编译
-./
+./configure -with-php-config=/usr/bin/php-config -with-pdo-mysql=mysqlnd
 
+```
+
+最后发现可以直接安装完事儿..囧
+```
+sudo apt-get install php7.3-mysql
 ```

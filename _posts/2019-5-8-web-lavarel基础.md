@@ -3,7 +3,7 @@ layout: post
 title:
 modified:
 categories: Tech
-tags: [thinksns]
+tags: [lavarel]
 comments: true
 ---
 <!-- TOC -->
@@ -15,8 +15,9 @@ comments: true
 - [MVC](#mvc)
     - [Controller:](#controller)
     - [View:](#view)
+    - [Model](#model)
+    - [分层的思想](#分层的思想)
 - [DB](#db)
-- [Laravel mix](#laravel-mix)
 
 <!-- /TOC -->
 
@@ -113,9 +114,59 @@ php artisan make:provider ComposerServiceProvider
 3 在composer类里实现compose方法为回调.
 ```
 
+## Model
+
+指定目录,生成的model为`app/Model/Demo.php`,否则默认为`app/Demo.php`
+```sh
+php artisan make:model Model/Demo
+```
+
+简单点就是下面的DB了.
+
+Q: 1个Model对象是如何与对应的表关联起来的?
+model里加个属性`table`
+```php
+protected $table = 'tags';
+```
+
+
+## 分层的思想
+
+<https://laravelacademy.org/post/9711.html#toc_2>
+
+不要束缚在MVC中，只要对项目进行合理的OO抽象.
+
+简单点就是不要把Controller写复杂了，把业务逻辑分到独立的层，更清晰.
+
+就是设计模式里的`单一职责`.
+```php
+class BillingController extends BaseController
+{
+
+    //biller放哪呢?
+    /* App/Billler/Biller
+    */
+
+    //biller通过构造函数来注入
+    public function __construct(BillerInterface $biller)
+    {
+        $this->biller = $biller;
+    }
+
+    public function postCharge(Request $request)
+    {
+        //账单的处理交给biller
+        $this->biller->chargeAccount(Auth::user(), $request->input('amount'));
+        return view('charge.success');
+    }
+
+}
+```
+
 # DB
 
-创建数据库迁移文件:
+创建数据库迁移文件:`database/migrations`下
+
 ```sh
 //创建
 php artisan make:migration create_users_table --create=users
@@ -132,22 +183,49 @@ php artisan make:migration alter_users_add_nickname --table=users
 php artisan migrate 
 //可回滚 回滚到指定版本
 php artisan migrate:rollback
+//重置
+php artisan migrate:reset
 ```
 
+遇到连接问题，是配置缓存的问题,清空一下.
+```sh
+php artisan cache:clear
+php artisan config:cache
+```
+
+数据填充，方便测试:
+```sh
+
+php artisan make:seed UsersTableSeeder
+php artisan db:seed
+```
+`database/seeds` 下的XXXSeeder就是产生测试数据的类.
+
+
+更猛一点，用工厂产生数据,在`database/factories`下.
+```sh
+php artisan make:factory Usersactory --model='\App\User'
+```
+
+E:执行db:seed时报错，说找不到UsersFactory类,命名定义了.
+php是根据类名反射创建对象的,有个配置在composer.json里:
+```sh
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "classmap": [
+            "database/seeds",
+            "database/factories"
+        ]
+    },
+```
+
+搜了下重新运行`composer dumpautoload`就好.
 
 
 
-`resource/views`
 
-Model:
-
-# Laravel mix
-
-`resource/js/app.js` 引入其他js模块
-
-`resource/sass/app.scss`　引入其他css模块
-
-webpack都配置好了.
 
 
 
