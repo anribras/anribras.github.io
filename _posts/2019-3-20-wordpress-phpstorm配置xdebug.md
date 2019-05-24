@@ -63,3 +63,10 @@ xdebug.idekey = PHPSTORM
 
 然后各种不行...找了下原因,单连的时候，也就不是DBGp proxy时，server是在phpstorm上，vps不可能连到我自己的电脑上.
 
+
+跑程序的实体php是xdebug的server 监听9000.
+
+ide的debug调试器是client, 连上server接收调试信息.
+
+IDE需要配置1个php环境，最好是本地的
+
