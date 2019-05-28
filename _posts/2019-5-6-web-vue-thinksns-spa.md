@@ -3,7 +3,7 @@ layout: post
 title:
 modified:
 categories: Tech
-tags: [thinksns]
+tags: [vue]
 comments: true
 ---
 

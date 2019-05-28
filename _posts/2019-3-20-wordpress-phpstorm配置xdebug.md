@@ -70,3 +70,5 @@ ide的debug调试器是client, 连上server接收调试信息.
 
 IDE需要配置1个php环境，最好是本地的
 
+
+

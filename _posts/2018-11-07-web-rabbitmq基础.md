@@ -43,8 +43,19 @@ comments: true
 
 ### binding key and routing key
 
-`binding key`是bind时指定的,参数仍然叫routing_key
-也就是说，1个exchange和queue,可以指定不同的binding key
+`binding key`是chanel bind exchange和queue时指定的,参数仍然叫routing_key
+其实就叫bind routing key好了
+exchange和queuey的bind关系，可以用这个key来表示.
+甚至同样的exchange和queue可以bind到不同key名称，不过没啥意义.
+```sh
+exchage-A bind queue-B1 ,routing_key = 'ea.rb1'
+exchage-A bind queue-B2 ,routing_key = 'ea.rb2'
+```
+到底有什么用?　后面publish的时候，可以指定具体走哪条exchange-queue的通道，就是通过routing_key来指示的.
+
+真正起不起作用，又是exchange的type决定的，准确的说是`direct`,`topic`类型才有用.
+
+
 ```py
 channel.exchange_declare(exchange=exchange_name, exchange_type='fanout')
 channel.queue_bind(exchange=exchange_name,
@@ -66,7 +77,7 @@ channel.queue_bind(exchange=exchange_name,
 ![Screenshot from 2018-11-08 10-42-30-1efba53d-d608-46d1-b1f8-b335d93356c7](https://images-1257933000.cos.ap-chengdu.myqcloud.com/Screenshot%20from%202018-11-08%2010-42-30-1efba53d-d608-46d1-b1f8-b335d93356c7.png)
 
 
-另外在publish时，有可以指定1个routing key:
+另外在publish时，有可以指定1个routing key,(这个就是前面设定的bind routing_key)
 ```py
 channel.basic_publish(exchange=exchange_name,
                         routing_key='black',

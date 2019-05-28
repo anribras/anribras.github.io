@@ -3,7 +3,7 @@ layout: post
 title:
 modified:
 categories: Tech
-tags: [c++]
+tags: [cplusplus]
 comments: true
 ---
 <!-- TOC -->

@@ -14,4 +14,4 @@ comments: true
 
 mvvm强调数据与model联动.
 
-评论ajax方法加载，越来越多.
+评论ajax方法加载，越来越多. 意味着一开始就必须有
