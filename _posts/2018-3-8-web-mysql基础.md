@@ -28,6 +28,7 @@ comments: true
 - [高级特性之 游标](#高级特性之-游标)
 - [临时表](#临时表)
 - [OTAINFO 实例](#otainfo-实例)
+- [数据库设计范式](#数据库设计范式)
 
 <!-- /TOC -->
 
@@ -517,3 +518,8 @@ CREATE TABLE OTAINFO(
         authorized int(1) 
 );
 ```
+
+### 数据库设计范式
+
+<https://segmentfault.com/a/1190000013695030?utm_source=tag-newest>
+
