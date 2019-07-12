@@ -54,8 +54,12 @@ select hobby,nickname from profile where `user_id`=xxx
 
 ### 问题
 
-10个post, 做文章列表，需要用到post-user-profile,　按上面的1对1，至少要10次查询.
+
+10个post, 做文章列表，需要用到post-user-profile,　按上面的1对1，至少要1+10次查询.
 用`with`解决. 
+
+<https://blog.csdn.net/u013032345/article/details/82772938>
+
 ```php
 $posts = Post::with('author')->where('views', '>', 0)->offset(1)->limit(10)->get();
 ```
@@ -78,7 +82,7 @@ public function posts()
     return $this->hasMany(Post::class);
 }
 $user = User::findOrFail(1);
-$posts = $user->posts;
+$posts = $user->posts();
 //in post model, change user to author more readable
 public function author()
 {
