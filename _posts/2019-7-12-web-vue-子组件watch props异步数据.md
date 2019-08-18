@@ -52,4 +52,45 @@ watch: {
 }
 ```
 
+## 场景2
+
+prop把父亲的info对象给了子组件，但是子组件如何监控其变化？能否修改?
+```js
+computed: {
+    aID: function() {
+        return this.info['id'];
+    }
+}
+```
+上面的aID将报错，无`id`属性, 因为info是异步的,computed计算前不能保证info有值了.
+这个和template直接使用有区别:
+```html
+<vue-markdown :source="post_info['feed_content']" :postrender="postRender"></vue-markdown>
+```
+
+<https://www.cnblogs.com/goloving/p/9114389.html>
+
+前面提到过了思路，其实就是watch.
+
+直接watch对象的item,看教程有这么做的，但是行不通?
+```js
+watch: {
+    "me_info.follower" : function (val) {
+        console.log('follower val:'+ val)
+    },
+
+    "me_info.id" : function (val) {
+        console.log(' val:'+ id)
+    }
+}
+```
+那只能watch整个prop对象了:
+```js
+"post_info": function (newVal) {
+    this.comment_count =
+        this.url.post_type === 'news' ?
+        newVal['comment_count']: newVal['feeds_comment_count']
+}
+```
+
 

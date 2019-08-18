@@ -80,6 +80,8 @@ php artisan make:provider RiakServiceProvider
 
 可以理解为操作复杂对象的简化方法,就是外观模式里的外观类的方法.
 
+## Contract
+
 
 
 
