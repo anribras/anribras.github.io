@@ -7,6 +7,7 @@ tags: [javascript,web]
 comments: true
 ---
 <!-- TOC -->
+
 - [Promise实践](#promise实践)
 
 <!-- /TOC -->
@@ -59,3 +60,10 @@ fetchImgUrl: async function (url, fn, cached = true) {
       });
     }
 ```
+
+Uny1vDY0cTROJ9vbBgAUlzCScwATp6LY
+
+![20190912110134.png](https://images-1257933000.cos.ap-chengdu.myqcloud.com/undefined20190912110134.png)
+
+
+![20190912110204.png](https://images-1257933000.cos.ap-chengdu.myqcloud.com/undefined20190912110204.png)
