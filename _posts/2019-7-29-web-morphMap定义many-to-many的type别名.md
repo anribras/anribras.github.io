@@ -3,7 +3,7 @@ layout: post
 title:
 modified:
 categories: Tech
-tags: [web,mysql,laravel]
+tags: [web, mysql, laravel]
 comments: true
 ---
 
@@ -16,6 +16,7 @@ comments: true
 ## 问题
 
 issue morphmany to comments:
+
 ```php
     public function comments()
     {
@@ -23,8 +24,10 @@ issue morphmany to comments:
     }
 }
 ```
-但是comment字段里的commentable_type的在表里填充的名称太长太丑陋了，可以通过morphMap来定义，
-放在ModelServiceProvider的register里:
+
+但是 comment 字段里的 commentable_type 的在表里填充的名称太长太丑陋了，可以通过 morphMap 来定义，
+放在 ModelServiceProvider 的 register 里:
+
 ```php
     protected function registerMorphMap()
     {

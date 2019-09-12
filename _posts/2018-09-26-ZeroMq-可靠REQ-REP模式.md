@@ -3,29 +3,29 @@ layout: post
 title:
 modified:
 categories: Tech
- 
-tags: [web,zeromq]
 
-  
+tags: [web, zeromq]
+
 comments: true
 ---
 
 <!-- TOC -->
 
-- [Client-Side Reliability (Lazy Pirate Pattern)](#client-side-reliability-lazy-pirate-pattern)
-- [Basic Reliable Queuing (Simple Pirate Pattern)](#basic-reliable-queuing-simple-pirate-pattern)
-- [Robust Reliable Queuing (Paranoid Pirate Pattern)](#robust-reliable-queuing-paranoid-pirate-pattern)
-    - [Service-Oriented Reliable Queuing (Majordomo Pattern)](#service-oriented-reliable-queuing-majordomo-pattern)
-    - [流程](#流程)
-    - [Asynchronous Majordomo Pattern](#asynchronous-majordomo-pattern)
-    - [broker演进总结](#broker演进总结)
+- [Client-Side Reliability (Lazy Pirate Pattern)](#Client-Side-Reliability-Lazy-Pirate-Pattern)
+- [Basic Reliable Queuing (Simple Pirate Pattern)](#Basic-Reliable-Queuing-Simple-Pirate-Pattern)
+- [Robust Reliable Queuing (Paranoid Pirate Pattern)](#Robust-Reliable-Queuing-Paranoid-Pirate-Pattern)
+  - [Service-Oriented Reliable Queuing (Majordomo Pattern)](#Service-Oriented-Reliable-Queuing-Majordomo-Pattern)
+  - [流程](#流程)
+  - [Asynchronous Majordomo Pattern](#Asynchronous-Majordomo-Pattern)
+  - [broker 演进总结](#broker-演进总结)
 
 <!-- /TOC -->
 
 ## Client-Side Reliability (Lazy Pirate Pattern)
 
-还没get到为啥要lazy pirate...
-核心就是client别死等rep，timeout，再加重试:
+还没 get 到为啥要 lazy pirate...
+核心就是 client 别死等 rep，timeout，再加重试:
+
 ```py
 #
 #  Lazy Pirate client
@@ -92,8 +92,10 @@ while retries_left:
 
 context.term()
 ```
+
 输出:
-```
+
+```sh
 client:
 I: Server replied OK (b'5')
 I: Sending (b'6')
@@ -118,13 +120,14 @@ I: Simulating a crash
 
 ## Basic Reliable Queuing (Simple Pirate Pattern)
 
-之前提到的load balancing broker已经可以解决某些worker挂掉的场景的了，client替换为上面的稳健client即可.
+之前提到的 load balancing broker 已经可以解决某些 worker 挂掉的场景的了，client 替换为上面的稳健 client 即可.
 
 ## Robust Reliable Queuing (Paranoid Pirate Pattern)
 
-但是上面的broker挂掉了怎么办?用heartbeating告诉worker,broker还活着！如果broker挂了(超时)，worker给3次机会,如最后还是收不到心跳，可以认为broker真的挂了.
+但是上面的 broker 挂掉了怎么办?用 heartbeating 告诉 worker,broker 还活着！如果 broker 挂了(超时)，worker 给 3 次机会,如最后还是收不到心跳，可以认为 broker 真的挂了.
 
-worker实现:
+worker 实现:
+
 ```py
 from random import randint
 import time
@@ -218,36 +221,35 @@ while True:
 
 1. 负载太重的情况，发方不用定时发，可以在负载轻微以后再发，收方可把收到的数据都看成对方`还活着`.
 
-2.push-pull模式会queue心跳，比如pull挂了，重新上线后，收到n多心跳！避免的方式就是push方要知道对方挂了，就不要定时发了.
+2.push-pull 模式会 queue 心跳，比如 pull 挂了，重新上线后，收到 n 多心跳！避免的方式就是 push 方要知道对方挂了，就不要定时发了.
 
-最后就是所谓的ping-pong心跳，相互监听,挺妥.比如上面的worker也回应心跳给broker. 以上场景自己做wifi互联也用到过，不算太特殊.
+最后就是所谓的 ping-pong 心跳，相互监听,挺妥.比如上面的 worker 也回应心跳给 broker. 以上场景自己做 wifi 互联也用到过，不算太特殊.
 
-又见大神操作:所有zeromq可能用到的自定义协议，全部整理清楚,比如上面这个[心跳协议](https://rfc.zeromq.org/spec:6/PPP/)
+又见大神操作:所有 zeromq 可能用到的自定义协议，全部整理清楚,比如上面这个[心跳协议](https://rfc.zeromq.org/spec:6/PPP/)
 
 ### Service-Oriented Reliable Queuing (Majordomo Pattern)
 
- 继承自上面的PPP,叫MDP，具体协议在[这里](https://rfc.zeromq.org/spec:7/MDP/)
+继承自上面的 PPP,叫 MDP，具体协议在[这里](https://rfc.zeromq.org/spec:7/MDP/)
 
-service-oriented在协议里的体现就是指定service name.重连谁，重发给谁都有明确目标.
+service-oriented 在协议里的体现就是指定 service name.重连谁，重发给谁都有明确目标.
 
-除了requset,reply,heartbeating,在协议里还定义了disconnect的命令.
+除了 requset,reply,heartbeating,在协议里还定义了 disconnect 的命令.
 
-在连接后，broker和worker都可向对方主动发disconnect;
+在连接后，broker 和 worker 都可向对方主动发 disconnect;
 
-borker收到任何不符合协议的invalid消息，应该发送disconnect给对方;并丢弃invalid消息.
+borker 收到任何不符合协议的 invalid 消息，应该发送 disconnect 给对方;并丢弃 invalid 消息.
 
-worker收到disconnect，做1次重连(不是broker主动disconnect吗?这里有点诡异)
+worker 收到 disconnect，做 1 次重连(不是 broker 主动 disconnect 吗?这里有点诡异)
 
 实现
 
-client核心: poll接收reply,timeout后，reconnect重发request,允许重试3次;
+client 核心: poll 接收 reply,timeout 后，reconnect 重发 request,允许重试 3 次;
 
-worker核心: heartbeating
+worker 核心: heartbeating
 
+最难的是 broker 了，先直接上作者的说明:
 
-最难的是broker了，先直接上作者的说明:
-
-```
+```sh
 The Majordomo Protocol lets us handle both clients and workers on a single socket. This is nicer for those deploying and managing the broker: it just sits on one ZeroMQ endpoint rather than the two that most proxies need.
 
 The broker implements all of MDP/0.1 properly (as far as I know), including disconnection if the broker sends invalid commands, heartbeating, and the rest.
@@ -259,16 +261,19 @@ A primary/failover or live/live broker reliability model is easy, as the broker 
 The examples use five-second heartbeats, mainly to reduce the amount of output when you enable tracing. Realistic values would be lower for most LAN applications. However, any retry has to be slow enough to allow for a service to restart, say 10 seconds at least.
 ```
 
-这里broker实现不是采用ROUTER-DEALER，而只是用了１个ROUTER,这里全是黑人问号了...因为MDP协议的特殊性？
+这里 broker 实现不是采用 ROUTER-DEALER，而只是用了１个 ROUTER,这里全是黑人问号了...因为 MDP 协议的特殊性？
 
-仔细看MDP,client和worker是通过frame可直接辨认的:
+仔细看 MDP,client 和 worker 是通过 frame 可直接辨认的:
+
 ```
 client:
 Frame 1: "MDPC01" (six bytes, representing MDP/Client v0.1)
 worker:
 Frame 1: "MDPW01" (six bytes, representing MDP/Worker v0.1)
 ```
-当ROUTER收到消息时，通过这个可区分消息流向.
+
+当 ROUTER 收到消息时，通过这个可区分消息流向.
+
 ```py
   if (MDP.C_CLIENT == header):
                     self.process_client(sender, msg)
@@ -279,7 +284,8 @@ Frame 1: "MDPW01" (six bytes, representing MDP/Worker v0.1)
                     dump(msg)
 ```
 
-broker如何把一个指定service name的client msg分发到worker的?
+broker 如何把一个指定 service name 的 client msg 分发到 worker 的?
+
 ```py
     def dispatch(self, service, msg):
         """Dispatch requests to waiting workers as possible"""
@@ -296,7 +302,8 @@ broker如何把一个指定service name的client msg分发到worker的?
             self.send_to_worker(worker, MDP.W_REQUEST, None, msg)
 ```
 
-2个很关键的数据object:
+2 个很关键的数据 object:
+
 ```py
 class Service(object):
     """a single Service"""
@@ -322,51 +329,44 @@ class Worker(object):
         self.expiry = time.time() + 1e-3*lifetime
 ```
 
-
 ### 流程
 
 client -> broker -> worker
 
 1. REQ client send [b'MDPC01', b'echo', b'Hello world']
 
-client端的REQUEST, ''自动被REQ添加，如果是DEALER，则需要手动增加,
+client 端的 REQUEST, ''自动被 REQ 添加，如果是 DEALER，则需要手动增加,
 
 2. ROUTER broker receive: [b'\x00k\x8bEi', b'', b'MDPC01', b'echo', b'Hello world']
 
-ROUTER recv后增加了from-peer address
+ROUTER recv 后增加了 from-peer address
 
 3. ROUTER send to worker(DEALER): [b'\x00k\x8bEj', b'', b'MDPW01', b'\x02', b'\x00k\x8bEi', b'', b'Hello world']
-broker发送给workder的REQUEST, ROUTER 发送前确认to-peer的address, 
+   broker 发送给 workder 的 REQUEST, ROUTER 发送前确认 to-peer 的 address,
 
 worker -> broker -> client
 
 1. DEALER worker send REPLY [b'\x00k\x8bEi', b'', b'MDPW01', b'\x03', b'\x00k\x8bEh', b'', b'Hello world'] to ROUTER broker
 
-worker端发送的REPLY.
+worker 端发送的 REPLY.
 
-2. ROUTER broker to REQ client:  [b'\x00k\x8bEh', b'', b'MDPC01', b'echo', b'Hello world']
-broker端发送的REPLY
+2. ROUTER broker to REQ client: [b'\x00k\x8bEh', b'', b'MDPC01', b'echo', b'Hello world']
+   broker 端发送的 REPLY
 
 ### Asynchronous Majordomo Pattern
 
+### broker 演进总结
 
+简单的 1-on-1 REQ-REP ;
 
-
-
-### broker演进总结
-
-简单的1-on-1 REQ-REP ; 
-
-普通的rr(round robin)broker的支持n-req n-rep.
+普通的 rr(round robin)broker 的支持 n-req n-rep.
 
 考虑效率用 lb(对象存储、块存储) broker;
 
-再效率!用集群, 用能平衡云端负载的advanced lb broker;
+再效率!用集群, 用能平衡云端负载的 advanced lb broker;
 
-好了，考虑可靠性，用reliable broker.
+好了，考虑可靠性，用 reliable broker.
 
 层层深入，可以的.
 
-
-### 
-
+###

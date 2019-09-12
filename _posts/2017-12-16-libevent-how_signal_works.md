@@ -3,12 +3,12 @@ layout: post
 title:
 modified:
 categories: Tech
- 
-tags: [libevent,backend]
 
-  
+tags: [libevent, backend]
+
 comments: true
 ---
+
 <!-- TOC -->
 
 - [signal](#signal)
@@ -19,16 +19,18 @@ comments: true
 
 <!-- /TOC -->
 
-
 ### signal
-signal机制是unix的典型的异步通知系统。注册的signal发生时，引起相应的signal_handler.
-libevent在注册时，可以选择event type为signal，如何做到相容?
 
-本质上是创建一个socket pair,注册一个internal类型的event，**属性为读和持久，监听的fd正是socketpair的读端，在sigal_handler到来时，往socket pair写**，即通过internal event注册的callback来根据信号值处理不同的信号。
+signal 机制是 unix 的典型的异步通知系统。注册的 signal 发生时，引起相应的 signal_handler.
+libevent 在注册时，可以选择 event type 为 signal，如何做到相容?
+
+本质上是创建一个 socket pair,注册一个 internal 类型的 event，**属性为读和持久，监听的 fd 正是 socketpair 的读端，在 sigal_handler 到来时，往 socket pair 写**，即通过 internal event 注册的 callback 来根据信号值处理不同的信号。
 
 ### evsig_init
-在每个IO复用方法初始化里，都需要调用这个初始化，它就是为signal准备的。
-注册了signal发生时对应event的callback,`evsig_cb`
+
+在每个 IO 复用方法初始化里，都需要调用这个初始化，它就是为 signal 准备的。
+注册了 signal 发生时对应 event 的 callback,`evsig_cb`
+
 ```c
 int
 evsig_init(struct event_base *base)
@@ -75,9 +77,12 @@ evsig_init(struct event_base *base)
 }
 
 ```
+
 ### evsig_cb
-在cb里记录哪些信号发生了，调用`evmap_signal_active`去signal active队列里
+
+在 cb 里记录哪些信号发生了，调用`evmap_signal_active`去 signal active 队列里
 执行真正的回调。
+
 ```c
 static void
 evsig_cb(evutil_socket_t fd, short what, void *arg)
@@ -123,8 +128,11 @@ evsig_cb(evutil_socket_t fd, short what, void *arg)
 }
 
 ```
-###  evmap_signal_active
-以sig值作为查找sigevmap的索引，找到对应的event,调用`event_active_nolock`
+
+### evmap_signal_active
+
+以 sig 值作为查找 sigevmap 的索引，找到对应的 event,调用`event_active_nolock`
+
 ```c
 void
 evmap_signal_active(struct event_base *base, evutil_socket_t sig, int ncalls)
@@ -140,9 +148,12 @@ evmap_signal_active(struct event_base *base, evutil_socket_t sig, int ncalls)
 		event_active_nolock(ev, EV_SIGNAL, ncalls);
 }
 ```
+
 ### event_active_nolock
-将注册了该sig对应的event,添加到active queue里.所有的事件在真正发生前，
-都是先添加到了active queue里，由base_loop里的`event_process_active`执行真正的callback。如何真正执行，请参考[event_base_loop的分析]({{site.url}}/blog/libevent-timing-machanism))。
+
+将注册了该 sig 对应的 event,添加到 active queue 里.所有的事件在真正发生前，
+都是先添加到了 active queue 里，由 base_loop 里的`event_process_active`执行真正的 callback。如何真正执行，请参考[event_base_loop 的分析]({{site.url}}/blog/libevent-timing-machanism))。
+
 ```c
 void
 event_active_nolock(struct event *ev, int res, short ncalls)

@@ -13,11 +13,11 @@ comments: true
 
 <!-- /TOC -->
 
-# 参考
+## 参考
 
-注:　很少直接用系统的php，一般是docker或直接用服务器的.还是安装1个
+注:　很少直接用系统的 php，一般是 docker 或直接用服务器的.还是安装 1 个
 
-apt-get无法安装php-7.3的插件.
+apt-get 无法安装 php-7.3 的插件.
 <https://kifarunix.com/how-to-install-php-7-3-3-on-ubuntu-18-04/>
 
 参考这里方法后可以安装了
@@ -32,7 +32,7 @@ wget http://pecl.php.net/get/PDO_MYSQL-1.0.2.tgz
 
 # 解压
 tar zxvf PDO_MYSQL-1.0.2.tgz
-cd PDO_MYSQL 
+cd PDO_MYSQL
 
 #生成configure
 phpize
@@ -43,6 +43,7 @@ phpize
 ```
 
 最后发现可以直接安装完事儿..囧
-```
+
+```sh
 sudo apt-get install php7.3-mysql
 ```

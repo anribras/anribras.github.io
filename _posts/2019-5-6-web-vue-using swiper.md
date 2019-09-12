@@ -6,6 +6,7 @@ categories: Tech
 tags: [vue]
 comments: true
 ---
+
 <!-- TOC -->
 
 - [start](#start)
@@ -15,6 +16,7 @@ comments: true
 ## start
 
 项目安装:
-```
+
+```sh
 yarn add vue-awesome-swiper
 ```

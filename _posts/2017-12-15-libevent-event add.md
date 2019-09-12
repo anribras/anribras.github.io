@@ -89,12 +89,12 @@ event 按 fd 作为索引，添加到链表数组中. 因为要当 queue 用，�
 
 ### event_add_internal 代码附录
 
-```c
+```cpp
 static inline int
 event_add_internal(struct event *ev, const struct timeval *tv,
     int tv_is_absolute)
 {
-	struct event_base *base = ev->ev_base;
+    struct event_base *base = ev->ev_base;
     int res = 0;
     int notify = 0;
 
@@ -111,7 +111,7 @@ event_add_internal(struct event *ev, const struct timeval *tv,
 		 tv ? "EV_TIMEOUT " : " ",
 		 ev->ev_callback));
 
-	EVUTIL_ASSERT(!(ev->ev_flags & ~EVLIST_ALL));
+EVUTIL_ASSERT(!(ev->ev_flags & ~EVLIST_ALL));
 
 	/*
 	 * prepare for timeout insertion further below, if we get a

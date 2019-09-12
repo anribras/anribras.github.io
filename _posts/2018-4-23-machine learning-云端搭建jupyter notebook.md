@@ -3,18 +3,19 @@ layout: post
 title:
 modified:
 categories: Tech
- 
+
 tags: [deep-learning]
 
-  
 comments: true
 ---
 
 <!-- TOC -->
 
+- [流程](#流程)
 
 <!-- /TOC -->
 
+## 流程
 
 流程如下:
 
@@ -39,17 +40,16 @@ c.NotebookApp.password = u'sha1:xxx'
 c.ContentManager.root_dir = '/opt/jupynote/root'
 
 #启动
-nohup jupyter notebook > ju.log 2>&1 & 
+nohup jupyter notebook > ju.log 2>&1 &
 
 ```
-访问[http://23.105.205.92:8888]，不过买的bwg的网不行，访问挺慢的...
 
+github 直接支持 jupyter 啊.简直不能太方便.
 
-github直接支持jupyter啊.简直不能太方便.
+顺便安装个 jupyer 的扩展插件.
 
-顺便安装个jupyer的扩展插件.
 ```shell
 conda install -c conda-forge jupyter_contrib_nbextensions
 ```
 
-用jupyter写笔记，真的无敌，太喜欢了
+用 jupyter 写笔记，真的无敌，太喜欢了

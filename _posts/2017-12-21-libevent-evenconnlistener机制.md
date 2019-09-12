@@ -3,12 +3,12 @@ layout: post
 title:
 modified:
 categories: Tech
- 
-tags: [libevent,backend]
 
-  
+tags: [libevent, backend]
+
 comments: true
 ---
+
 <!-- TOC -->
 
 - [前言](#前言)
@@ -20,14 +20,15 @@ comments: true
 <!-- /TOC -->
 
 ### 前言
-libevent在对ready的fd绑定的event调用`event_assign,event_add`是其使用核心，但是fd的ready还是要经过socket的`socket,bind,listen,accept`,如何把这部分封装起来，就是eventconnlistener做的事情。
+
+libevent 在对 ready 的 fd 绑定的 event 调用`event_assign,event_add`是其使用核心，但是 fd 的 ready 还是要经过 socket 的`socket,bind,listen,accept`,如何把这部分封装起来，就是 eventconnlistener 做的事情。
 结构体的组织如下图:
 ![2017-12-21-11-36-20](https://images-1257933000.cos.ap-chengdu.myqcloud.com/2017-12-21-11-36-20.png)
 
-eventconnlistener里,有个简单的技巧，即通过结构体元素地址，寻找上层结构体的地址。
-这样使用宏的技巧在libevent很多,如:
+eventconnlistener 里,有个简单的技巧，即通过结构体元素地址，寻找上层结构体的地址。
+这样使用宏的技巧在 libevent 很多,如:
 
-EVUTIL_UPCAST通过`lev`指针找到上层结构体`evconnlistener_event`的指针`lev_e`,其实目的就是为了使用`lev_e->listener` 即event。
+EVUTIL_UPCAST 通过`lev`指针找到上层结构体`evconnlistener_event`的指针`lev_e`,其实目的就是为了使用`lev_e->listener` 即 event。
 
 ```
 struct evconnlistener_event *lev_e =
@@ -43,11 +44,11 @@ EVUTIL_UPCAST(lev, struct evconnlistener_event, base);
 
 ```
 
-### evconnlistener_new  
+### evconnlistener_new
 
 这个函数将`listen event_add event_assign`封装在了一起。
 
-```c 
+```c
 struct evconnlistener *
 evconnlistener_new(struct event_base *base,
     evconnlistener_cb cb, void *ptr, unsigned flags, int backlog,
@@ -90,24 +91,30 @@ evconnlistener_new(struct event_base *base,
 
 
 ```
-### evconnlistener_enable 
-本质就是通过ops函数指针调用了`event_listener_enable`。
-接着用到了上文提到的`EVUTIL_UPCAST`。兜兜转转，就是想拿到上层的结构体指针，然后对另外一个成员event使用`event_add`。
+
+### evconnlistener_enable
+
+本质就是通过 ops 函数指针调用了`event_listener_enable`。
+接着用到了上文提到的`EVUTIL_UPCAST`。兜兜转转，就是想拿到上层的结构体指针，然后对另外一个成员 event 使用`event_add`。
+
 ```
-static int  
-event_listener_enable(struct evconnlistener *lev)  
-{  
-    struct evconnlistener_event *lev_e =  
-        EVUTIL_UPCAST(lev, struct evconnlistener_event, base);  
-  
-    //加入到event_base，完成监听工作。  
-    return event_add(&lev_e->listener, NULL);  
-}  
+static int
+event_listener_enable(struct evconnlistener *lev)
+{
+    struct evconnlistener_event *lev_e =
+        EVUTIL_UPCAST(lev, struct evconnlistener_event, base);
+
+    //加入到event_base，完成监听工作。
+    return event_add(&lev_e->listener, NULL);
+}
 ```
-### evconnlistener_new_bind 
-这个函数将`socket bind `以及上面的`evconnlistener_new `放在一起,
+
+### evconnlistener_new_bind
+
+这个函数将`socket bind`以及上面的`evconnlistener_new`放在一起,
 因此调用它就是完整的功能
-```c 
+
+```c
 struct evconnlistener *
 evconnlistener_new_bind(struct event_base *base, evconnlistener_cb cb,
     void *ptr, unsigned flags, int backlog, const struct sockaddr *sa,
@@ -167,11 +174,15 @@ evconnlistener_new_bind(struct event_base *base, evconnlistener_cb cb,
 ```
 
 ### listener_read_cb
-是在`event_assign`里指定了listen到了fd后的回调。
+
+是在`event_assign`里指定了 listen 到了 fd 后的回调。
+
 ```
 event_assign(&lev->listener, base, fd, EV_READ|EV_PERSIST,                       listener_read_cb, lev);
 ```
-accept的调用自然是在这个回调里。在回调里自然也实现了accept后的回调`evconnlistener_cb`。
+
+accept 的调用自然是在这个回调里。在回调里自然也实现了 accept 后的回调`evconnlistener_cb`。
+
 ```
 static void
 listener_read_cb(evutil_socket_t fd, short what, void *p)
@@ -240,4 +251,3 @@ listener_read_cb(evutil_socket_t fd, short what, void *p)
 	}
 }
 ```
-

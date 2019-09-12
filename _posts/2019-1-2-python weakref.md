@@ -9,4 +9,3 @@ comments: true
 ---
 
 <https://nbviewer.jupyter.org/github/anribras/pythonNotes/blob/master/weakref.ipynb>
-

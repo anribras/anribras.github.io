@@ -9,8 +9,7 @@ comments: true
 
 <!-- TOC -->
 
-- [组件挂载](#%e7%bb%84%e4%bb%b6%e6%8c%82%e8%bd%bd)
-  - [指定 el](#%e6%8c%87%e5%ae%9a-el)
+- [组件挂载](#组件挂载)
 
 <!-- /TOC -->
 
@@ -18,7 +17,7 @@ comments: true
 
 ## 组件挂载
 
-### 指定 el
+- 指定 el
 
 全局 Vue 实例化后,挂载到 id=app 的元素，并替换它:
 
@@ -47,7 +46,7 @@ new Vue {
 </div>
 ```
 
-2. mount 指定 HtmlElement
+- mount 指定 HtmlElement
 
 ```js
 new Vue {
@@ -55,7 +54,7 @@ new Vue {
 }.mount('#app')
 ```
 
-3. 手动 mount
+- 手动 mount
 
 ```js
 const MessageInstance = new Vue({

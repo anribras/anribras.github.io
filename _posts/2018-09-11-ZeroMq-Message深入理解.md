@@ -3,32 +3,30 @@ layout: post
 title:
 modified:
 categories: Tech
- 
-tags: [web,zeromq]
 
-  
+tags: [web, zeromq]
+
 comments: true
 ---
 
 <!-- TOC -->
 
-- [base API](#base-api)
-- [Multiple Sockets](#multiple-sockets)
-- [Multipart Messages](#multipart-messages)
-- [Unix Signal caughtion](#unix-signal-caughtion)
-- [Multithreading with ZeroMQ](#multithreading-with-zeromq)
-- [Signaling Between Threads](#signaling-between-threads)
-- [Pub-sub Node Coordination](#pub-sub-node-coordination)
-- [Pub-Sub Message Envelopes](#pub-sub-message-envelopes)
-- [High-Water Marks](#high-water-marks)
-- [Missing Message Problem Solver](#missing-message-problem-solver)
+- [base API](#base-API)
+- [Multiple Sockets](#Multiple-Sockets)
+- [Multipart Messages](#Multipart-Messages)
+- [Unix Signal caughtion](#Unix-Signal-caughtion)
+- [Multithreading with ZeroMQ](#Multithreading-with-ZeroMQ)
+- [Signaling Between Threads](#Signaling-Between-Threads)
+- [Pub-sub Node Coordination](#Pub-sub-Node-Coordination)
+- [Pub-Sub Message Envelopes](#Pub-Sub-Message-Envelopes)
+- [High-Water Marks](#High-Water-Marks)
+- [Missing Message Problem Solver](#Missing-Message-Problem-Solver)
 
 <!-- /TOC -->
 
-
 ## base API
 
-Initialise a message: 
+Initialise a message:
 
 ```c
 zmq_msg_init()
@@ -36,14 +34,14 @@ zmq_msg_init_size()
 zmq_msg_init_data().
 ```
 
-Sending and receiving a message: 
+Sending and receiving a message:
 
 ```c
 zmq_msg_send()
 zmq_msg_recv()
 ```
 
-Release a message: 
+Release a message:
 
 ```c
 zmq_msg_close().
@@ -64,8 +62,8 @@ zmq_msg_get()
 zmq_msg_set()
 ```
 
-
 Message manipulation
+
 ```c
 zmq_msg_copy()
 zmq_msg_move()
@@ -73,7 +71,8 @@ zmq_msg_move()
 
 ## Multiple Sockets
 
-类似IO复用，zeromq也有poll机制，可方便同时读写多个socket.
+类似 IO 复用，zeromq 也有 poll 机制，可方便同时读写多个 socket.
+
 ```c
 //
 //  Reading from multiple sockets in C++
@@ -105,7 +104,7 @@ int main (int argc, char *argv[])
     while (1) {
         zmq::message_t message;
         zmq::poll (&items [0], 2, -1);
-        
+
         if (items [0].revents & ZMQ_POLLIN) {
             receiver.recv(&message);
             //  Process task
@@ -121,12 +120,11 @@ int main (int argc, char *argv[])
 
 ## Multipart Messages
 
-消息组装，一个multipart message可以由多个frame来完成发送和接收.
+消息组装，一个 multipart message 可以由多个 frame 来完成发送和接收.
 
-发送时，最后一个message part发送完成时，整个multipatr message才开始发送;
+发送时，最后一个 message part 发送完成时，整个 multipatr message 才开始发送;
 
-接收时，第一个message part可以接收时，整个multipatr message实际上都已经接收了,这是很合理的.
-
+接收时，第一个 message part 可以接收时，整个 multipatr message 实际上都已经接收了,这是很合理的.
 
 Send:
 
@@ -152,9 +150,11 @@ while (1) {
         break;      //  Last message frame
 }
 ```
+
 ## Unix Signal caughtion
 
-用try-catch捕获,然后基于正常注册的signal hander该咋处理咋处理.
+用 try-catch 捕获,然后基于正常注册的 signal hander 该咋处理咋处理.
+
 ```c
     try {
         socket.recv (&msg);
@@ -164,25 +164,25 @@ while (1) {
     }
 ```
 
-或者判断返回的return code == EINTER,这个和unix保持一致.
+或者判断返回的 return code == EINTER,这个和 unix 保持一致.
 
 ## Multithreading with ZeroMQ
 
-首先这里的multithreading 指的是server.
+首先这里的 multithreading 指的是 server.
 
-值得一提的是，Zeromq的多线程是`不使用任何同步原语`的高效实现.作者的比喻也是异常生动：`要真正的同步编程，就不要有任何共享的状态，否则就像2个醉汉抢1杯啤酒，他们必有一架干，酒桌上的啤酒越多，架就干的越多...`
+值得一提的是，Zeromq 的多线程是`不使用任何同步原语`的高效实现.作者的比喻也是异常生动：`要真正的同步编程，就不要有任何共享的状态，否则就像2个醉汉抢1杯啤酒，他们必有一架干，酒桌上的啤酒越多，架就干的越多...`
 
 ![2018-09-12-16-01-45](https://images-1257933000.cos.ap-chengdu.myqcloud.com/2018-09-12-16-01-45.png)
 
-每个worker都是一个单线程，线程中`不要共享数据`.
+每个 worker 都是一个单线程，线程中`不要共享数据`.
 
-DEALER和REP是inproc，即进程内的跨线程.
+DEALER 和 REP 是 inproc，即进程内的跨线程.
 
-DEALER把task分配给REP(server),无需同步原语，由一定的策略决定.
+DEALER 把 task 分配给 REP(server),无需同步原语，由一定的策略决定.
 
-## Signaling Between Threads 
+## Signaling Between Threads
 
-线程间要同步通讯怎么办呢?就像`update->scale->rotate->convert->send`那样的pipeline线程流程?答案是`PARI sockets`.(个人怀疑这个能比同步原语快?)
+线程间要同步通讯怎么办呢?就像`update->scale->rotate->convert->send`那样的 pipeline 线程流程?答案是`PARI sockets`.(个人怀疑这个能比同步原语快?)
 
 ```python
 import threading
@@ -260,14 +260,15 @@ if __name__ == '__main__':
 
 ## Pub-sub Node Coordination
 
-node可以理解为一个网络节点，zeromq中的socket，proxy，都是node.如果node之间需要同步些消息(就像上面的threadh之间做的),用PAIR就不合适了，因为thread是一直运行在那的，而node在网络里，可能随时拿掉，又随时连上.
+node 可以理解为一个网络节点，zeromq 中的 socket，proxy，都是 node.如果 node 之间需要同步些消息(就像上面的 threadh 之间做的),用 PAIR 就不合适了，因为 thread 是一直运行在那的，而 node 在网络里，可能随时拿掉，又随时连上.
 
-可以用`REQ-REP`,看一个Pub-sub 同步(sync pub-sub)的例子，pub需要知道多少sub连上了服务器，于是sub通过 req告知pub已连接，pub等预定数目的sub连接才真正的pub消息:
+可以用`REQ-REP`,看一个 Pub-sub 同步(sync pub-sub)的例子，pub 需要知道多少 sub 连上了服务器，于是 sub 通过 req 告知 pub 已连接，pub 等预定数目的 sub 连接才真正的 pub 消息:
 
 ![2018-09-12-17-26-54](https://images-1257933000.cos.ap-chengdu.myqcloud.com/2018-09-12-17-26-54.png)
 
 ## Pub-Sub Message Envelopes
-其实就是传统pub-sub里的topic,subscriber可以仅订阅自己感兴趣的topic,Zeromq里用`envlope`.
+
+其实就是传统 pub-sub 里的 topic,subscriber 可以仅订阅自己感兴趣的 topic,Zeromq 里用`envlope`.
 
 ```py
 publisher.send_multipart([b"A", b"We don't want to see this"])
@@ -281,10 +282,10 @@ subscriber.setsockopt(zmq.SUBSCRIBE, b"B")
 
 ## High-Water Marks
 
-在IO负载很高时，对socket的接收端或发送端(or both)的IO buffer行为进行控制，等待数据，丢弃接收数据等等.
+在 IO 负载很高时，对 socket 的接收端或发送端(or both)的 IO buffer 行为进行控制，等待数据，丢弃接收数据等等.
 
 ## Missing Message Problem Solver
 
 下面的流程处理也够详细了:
 
-![](./img/Missing-Message-Problem-Solver.png)
+![sovler](./img/Missing-Message-Problem-Solver.png)

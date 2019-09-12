@@ -6,7 +6,15 @@ categories: Tech
  
 tags: [wordpress]
 
-comments: true
+<!-- TOC -->
+
+- [插件初始化](#插件初始化)
+- [JSON_API对象](#JSON_API对象)
+  - [query](#query)
+  - [如何扩展](#如何扩展)
+  - [具体在哪里执行?](#具体在哪里执行)
+
+<!-- /TOC -->
 ---
 
 json-api系列的插件，简单好用，我喜欢.

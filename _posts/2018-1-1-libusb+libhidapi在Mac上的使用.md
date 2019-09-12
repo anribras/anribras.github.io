@@ -3,12 +3,12 @@ layout: post
 title:
 modified:
 categories: Tech
- 
-tags: [linux,libusb]
 
-  
+tags: [linux, libusb]
+
 comments: true
 ---
+
 <!-- TOC -->
 
 - [起因](#起因)
@@ -18,18 +18,19 @@ comments: true
 
 ### 起因
 
-项目的一个小工具，将鼠标控制forward到Android平台上，通过pc中转，最初用的Ubuntu,核心自然是libusb的使用了，一切倒还顺利，基本的思路是:
+项目的一个小工具，将鼠标控制 forward 到 Android 平台上，通过 pc 中转，最初用的 Ubuntu,核心自然是 libusb 的使用了，一切倒还顺利，基本的思路是:
 
->switch android aoa mode
+> switch android aoa mode
+>
+> libusb access hid mouse device, get hid report descriptor.
+>
+> send descriptor to android.
+>
+> forward hid report data to android;
 
->libusb access hid mouse device, get hid report descriptor.
-
->send descriptor to android.
-
->forward hid report data to android;
-
-到了MAC电脑上，发现用不了了。检查了半天，发现是在open hid device后的
+到了 MAC 电脑上，发现用不了了。检查了半天，发现是在 open hid device 后的
 `claim_interface`失败.
+
 ```c
     printf("libusb_kernel_driver_active %d\n",interface);
 	ret = libusb_kernel_driver_active(*handle, interface);
@@ -48,17 +49,17 @@ comments: true
 		printf("Failed to claim interface %d.\n", interface);
 ```
 
-google了很久，终于找到[libusb的issue讨论](https://github.com/libusb/libusb/issues/158),有人提到Mac上做hid设备时，最好不要用libusb,而是libusbapi,这是个无驱方案，也就是不需要上面的`detach_kernel`动作，而且加了这个反倒不正常了.
+google 了很久，终于找到[libusb 的 issue 讨论](https://github.com/libusb/libusb/issues/158),有人提到 Mac 上做 hid 设备时，最好不要用 libusb,而是 libusbapi,这是个无驱方案，也就是不需要上面的`detach_kernel`动作，而且加了这个反倒不正常了.
 
-[libhidapi在这里](http://www.signal11.us/oss/hidapi/)
+[libhidapi 在这里](http://www.signal11.us/oss/hidapi/)
 
-但是！hidapi并没有办法get hid descriptor,只有libusb可以做到.
+但是！hidapi 并没有办法 get hid descriptor,只有 libusb 可以做到.
 
 怎么办呢，只好结合两者了
 
 ### 解决
 
-原来libusb的逻辑不动，把libusb asynchronous中的interput transfer接收hid report的方式改为用hidapi的`hid_read`(的确简单了）但是hid_read是不能在kernel detach的方式下用的。重点来了,再send descriptor到android后，因为hid的handle后面用hidapi代替操作了，不再需要用了.可以通过下面的方法恢复driver:
+原来 libusb 的逻辑不动，把 libusb asynchronous 中的 interput transfer 接收 hid report 的方式改为用 hidapi 的`hid_read`(的确简单了）但是 hid_read 是不能在 kernel detach 的方式下用的。重点来了,再 send descriptor 到 android 后，因为 hid 的 handle 后面用 hidapi 代替操作了，不再需要用了.可以通过下面的方法恢复 driver:
 
 ```c
 // 0 is interface number
@@ -66,7 +67,9 @@ libusb_release_interface(hid->handle, 0);
 libusb_attach_kernel_driver(hid->handle,0);
 libusb_close(hid->handle);
 ```
-在这之后，再尽情使用hidapi好了:
+
+在这之后，再尽情使用 hidapi 好了:
+
 ```
 void * rx_hidapi(void* para)
 {
@@ -79,7 +82,7 @@ void * rx_hidapi(void* para)
 		return -1;
 	devs = hid_enumerate(0x0, 0x0);
 	printf("hid_enumerate\n");
-	cur_dev = devs;	
+	cur_dev = devs;
 	int pid,vid;
 	wchar_t* found = NULL;
 	while (cur_dev) {
@@ -91,7 +94,7 @@ void * rx_hidapi(void* para)
 		printf("  Interface:    %d\n",  cur_dev->interface_number);
 		printf("\n");
 		// wchar_t using wcsstr replace strstr.
-		found = wcsstr(cur_dev->product_string,L"Mouse"); 
+		found = wcsstr(cur_dev->product_string,L"Mouse");
 		if (found) {
 			printf("Mouse found\n");
 			pid = cur_dev->product_id;
@@ -125,6 +128,7 @@ void * rx_hidapi(void* para)
 	hid_exit();
 }
 ```
-这个方案在linux,mac和windows应该都是通用的.
 
-推到github上了:(https://github.com/anribras/linux-adk)
+这个方案在 linux,mac 和 windows 应该都是通用的.
+
+推到 github 上了 [here](https://github.com/anribras/linux-adk)

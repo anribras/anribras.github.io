@@ -10,12 +10,12 @@ comments: true
 <!-- TOC -->
 
 - [v-gif-play 使用场景](#v-gif-play-使用场景)
-- [gifPlay.js](#gifplayjs)
-    - [IntersectionObserver](#intersectionobserver)
+- [gifPlay.js](#gifPlayjs)
+  - [IntersectionObserver](#IntersectionObserver)
 - [util/prototype.js](#utilprototypejs)
 - [bus.js](#busjs)
 - [gif 数据出处 v-async-image](#gif-数据出处-v-async-image)
-    - [getFirstFrameOfGif.js](#getfirstframeofgifjs)
+  - [getFirstFrameOfGif.js](#getFirstFrameOfGifjs)
 
 <!-- /TOC -->
 
@@ -126,11 +126,7 @@ const observer = new IntersectionObserver(entries => {
 
 ## util/prototype.js
 
-给 div tag 添加了 play 和 stop 函数,专门用来播放 gif 和停止 gif;
-
-```
-并在父级元素上添加`playing`.
-```
+给 div tag 添加了 play 和 stop 函数,专门用来播放 gif 和停止 gif, 并在父级元素上添加`playing`.
 
 dataset 的数据怎么来的看最后.
 
