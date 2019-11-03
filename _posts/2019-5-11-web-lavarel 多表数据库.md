@@ -336,7 +336,19 @@ return $this->belongsToMany('App\User')->using('App\RoleUser');
 
 <https://stackoverflow.com/questions/5158950/mysql-join-many-to-many-single-row>
 
-就是两个 join 查询.
+就是两个 join 查询.比如:
+
+```sql
+SELECT
+    product.productID,
+    category.categoryID,
+    product.name,
+    product.price,
+    category.name
+FROM product
+JOIN product_cat ON product.productID = product_cat.productID
+JOIN category ON category.categoryID = product_cat.categoryID
+```
 
 多对多的核心是`中间表`,除了简单的`A--A_B---A`,还有:
 
@@ -428,6 +440,8 @@ post 有唯一缩略图
 用户　有唯一头像
 按上面理解，2 个 1 对 1 的表就行了.但是实际都是存的图像，这个表是可以共享的,只是类型不同，这就是所谓多态.Image 表就可以是定义为多态性质的
 
+简单说，多态就是用`id+type`来表示原来`1对多`关系中的外键id, 达到共享表结构，表的关系更加清晰。
+
 ```php
 function up(){
        Schema::create('images', function (Blueprint $table) {
@@ -446,7 +460,13 @@ public function imageable()
 $iamge->imageable//直接返回模型实例
 ```
 
-imageable 表: id，imageable_type,imageable_id.(来自 post_id or author_id)
+imageable 表:
+
+```sh
+id，
+imageable_type,
+imageable_id.(来自 post_id or author_id)
+```
 
 再看 Post 里怎么关联,就能返回自己的缩略图:
 

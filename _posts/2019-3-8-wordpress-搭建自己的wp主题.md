@@ -12,11 +12,11 @@ comments: true
 <!-- TOC -->
 
 - [function.php](#functionphp)
-	- [自定义设置](#自定义设置)
-	- [小工具设置](#小工具设置)
-	- [加载脚本](#加载脚本)
-	- [模板 tag](#模板-tag)
-	- [templdate-functions](#templdate-functions)
+- [自定义设置](#自定义设置)
+- [小工具设置](#小工具设置)
+- [加载脚本](#加载脚本)
+- [模板 tag](#模板-tag)
+- [templdate-functions](#templdate-functions)
 
 <!-- /TOC -->
 
@@ -26,9 +26,7 @@ comments: true
 <http://html5blank.com/>
 <https://underscores.me/>
 
-就是\_s 这个开始，够简单的.
-
-## function.php
+### function.php
 
 ### 自定义设置
 

@@ -1,6 +1,5 @@
 {
     "default": true,
     "no-hard-tabs":false,
-    "MD013": {"line_length":500},
-    "MD040": false
+    "MD013": {"line_length":500}
 }
