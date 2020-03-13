@@ -178,6 +178,7 @@ $profile->with('user'=>function($query){
 })
 ```
 * with and load
+
 `load`: lazy渴求式加载，需要时才调用,更灵活;
 ```php
 if($flag) {
