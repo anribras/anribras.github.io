@@ -5,9 +5,9 @@ modified:
 categories: Tech
 tags: [machine-learning]
 
-  
 comments: true
 ---
+
 <!-- TOC -->
 
 - [基本理解](#基本理解)
@@ -22,25 +22,25 @@ comments: true
 
 ### 基本理解
 
-
-linear regression用于回归，而logistic regression用于分类，不要被迷惑.先讲2元的，再推广到多元的分类。
+linear regression 用于回归，而 logistic regression 用于分类，不要被迷惑.先讲 2 元的，再推广到多元的分类。
 
 ### 预测函数
 
-预测函数为在已经观测样本和参数下,y=1的条件概率密度函数:
+预测函数为在已经观测样本和参数下,y=1 的条件概率密度函数:
 
 $$h_{\theta}(x^{(i)})=\frac{1}{1+e^{-\theta^{T}x^{(i)}}}=P(y^{(i)}=1|x^{(i)},\theta)$$
 
 概率越大的结果则为相应的分类。
 
 ### 代价函数
+
 单个样本的代价函数定义:
 
 $$J(\theta )= -log(h_{\theta}(x))) ,when\ y= 1;$$
 
 $$J(\theta )= -log(1-h_{\theta}(x))) ,when\ y= 0;$$
 
-写成1个公式即:
+写成 1 个公式即:
 
 $$J(\theta)  = -y*log(h_{\theta}(x))) -(1-y)*log(1-h_{\theta}(x)))$$
 
@@ -48,32 +48,31 @@ $$J(\theta)  = -y*log(h_{\theta}(x))) -(1-y)*log(1-h_{\theta}(x)))$$
 
 $$J(\theta)  = -\frac{1}{m}\sum_{i=1}^{m}\left ( y*log(h_{\theta}(x^{(i)}))) +(1-y^{(i)})*log(1-h_{\theta}(x^{(i)}))) \right )$$
 
-vectorazation后(fminunc写costfunction时要用),即:
+vectorazation 后(fminunc 写 costfunction 时要用),即:
 
 $$J(\theta)  = -\frac{1}{m}\left ( log(g(X^{T}\theta)) + (1-y^{(i)})^{T}* log(g(1-X^{T}\theta)) \right )$$
-
 
 如何理解代价函数?
 
 ![2018-04-11-14-45-43](https://images-1257933000.cos.ap-chengdu.myqcloud.com/2018-04-11-14-45-43.png)
 
-$h(\theta)$表示参数$\theta$,和观测样本x下，标签y=1的概率,概率越大，代价函数越小，惩罚越小，欧负责增加该样本对整体模型的惩罚，这就是LR 代价函数的内涵。
+$h(\theta)$表示参数$\theta$,和观测样本 x 下，标签 y=1 的概率,概率越大，代价函数越小，惩罚越小，欧负责增加该样本对整体模型的惩罚，这就是 LR 代价函数的内涵。
 
 ### 梯度下降法求解
 
 问题描述为:
 
-$$arg\   \underset{\ \theta}minJ(\theta), which\  J(\theta)  = -\frac{1}{m}\sum_{i=1}^{m}(y^{(i)}*log(h_{\theta}(x^{(i)}))) +(1-y^{(i)})*log(1-h_{\theta}(x^{(i)}))))$$ 
- 
+$$arg\   \underset{\ \theta}minJ(\theta), which\  J(\theta)  = -\frac{1}{m}\sum_{i=1}^{m}(y^{(i)}*log(h_{\theta}(x^{(i)}))) +(1-y^{(i)})*log(1-h_{\theta}(x^{(i)}))))$$
+
 梯度下降法求解为:
 
 $$\theta_{j} = \theta_{j}  - {\alpha}\frac{\partial J(\theta)}{\partial \theta_{j}}$$
 
 最终求解为:
 
-$$\theta_{j} =\theta_{j} - \frac{\alpha}{m}\sum_{i=1}^{m}\left ( h_{\theta}(x^{(i)} - y^{(i)}) \right )\cdot x^{(i)}_{j}$$ 
+$$\theta_{j} =\theta_{j} - \frac{\alpha}{m}\sum_{i=1}^{m}\left ( h_{\theta}(x^{(i)} - y^{(i)}) \right )\cdot x^{(i)}_{j}$$
 
-vectorazation后:
+vectorazation 后:
 
 $$\theta = \theta - \frac{\alpha}{m}X^{T}(g(X\theta)-y)$$
 
@@ -82,18 +81,21 @@ $$\theta = \theta - \frac{\alpha}{m}X^{T}(g(X\theta)-y)$$
 ### 优化方法求解
 
 面对巨多的特征时，如何让计算更加快?
-Ng提到的是`Conjugate Gradient descent,BFGS,L-BFGS`.,可以自动学习$\alpha$,让convergence 更快.
+Ng 提到的是`Conjugate Gradient descent,BFGS,L-BFGS`.,可以自动学习$\alpha$,让 convergence 更快.
 
-octave里有个fminunc直接使用
+octave 里有个 fminunc 直接使用
 
-定义1个costFunction，jVal,gradient的形式决定了使用什么算法
+定义 1 个 costFunction，jVal,gradient 的形式决定了使用什么算法
+
 ```m
 function [jVal,gradient] = costFunction(theta)
-    jVal=xxx; 
+    jVal=xxx;
     gradient = xxx;
 end;
 ```
-调用`fminunc`,计算非约束的优化问题，底层可能是GD,也可能是上面提到的优化算法。
+
+调用`fminunc`,计算非约束的优化问题，底层可能是 GD,也可能是上面提到的优化算法。
+
 ```m
 option = optimset('GradObj','on','MaxIter',100);
 initTheta = zeros(2,1);
@@ -101,21 +103,23 @@ initTheta = zeros(2,1);
 ```
 
 ### 多元线性回归
-`一对多`的思想，如三元分类，变成3个2元分类的问题.
+
+`一对多`的思想，如三元分类，变成 3 个 2 元分类的问题.
 
 $$h_{\theta}^{(j)}(x)=P(y^{(i)}=i|x;\theta) for\  i=1,2,3...$$
 
 哪个概率大，哪个就是预测值.
 
-问题来了，对于fminunc怎么计算多元特征的cost function?
-难道针对每个分类，都用1次fminunc算出一个$\theta$,计算预测样本对应的的$h_{\theta}(x)$,这样的值要计算n回，然后取最大值的那个作为预测的标准?
+问题来了，对于 fminunc 怎么计算多元特征的 cost function?
+难道针对每个分类，都用 1 次 fminunc 算出一个$\theta$,计算预测样本对应的的$h_{\theta}(x)$,这样的值要计算 n 回，然后取最大值的那个作为预测的标准?
 
 ### 多元的例子
+
 实践下，造个数据集:
 
 ![2018-04-12-15-23-25](https://images-1257933000.cos.ap-chengdu.myqcloud.com/2018-04-12-15-23-25.png)
 
-octave代码如下:
+octave 代码如下:
 
 ```m
 clc;close all; clear all;
@@ -164,14 +168,14 @@ function [jVal,gradi] = costFunction(theta,X,y)
 	m = size(X,1);
 	% without regulazation
 	jVal = -(1/(m)) * sum ((y'*log(sigmoid_e(X*theta))+(1-y)'* log(1 - sigmoid_e(X*theta))));
-	gradi = X' *  (sigmoid_e(X*theta) - y ) / m ; 
+	gradi = X' *  (sigmoid_e(X*theta) - y ) / m ;
 
 	% with regulazation
 	lambda = 0.9;
 	new_theta = [0; theta(2:end)];
 	jVal = -(1/(m)) * sum ((y'*log(sigmoid_e(X*theta))+(1-y)'* log(1 - sigmoid_e(X*theta))));
 	(lambda/(2*m)) * theta(2:end)'* theta(2:end);
-	gradi = X' *  (sigmoid_e(X*theta) - y ) / m + lambda /m * new_theta ; 
+	gradi = X' *  (sigmoid_e(X*theta) - y ) / m + lambda /m * new_theta ;
 end
 
 
@@ -189,7 +193,7 @@ function [thetaVal, functionVal, exitFlag] = calTheta(feature,data)
 	X = train_c_binary(:,1:3);
 	y = train_c_binary(:,4);
 	m = size(train_c_binary,1);
-	
+
 	initTheta  =  zeros(3,1);
 
 	option = optimset('GradObj','on','MaxIter',400);
@@ -245,9 +249,8 @@ end
 
 ```
 
-比较关键的就是costFunction里的J_theta和梯度的计算，一定主要是`vectorazation`让计算变的更加简洁。
+比较关键的就是 costFunction 里的 J_theta 和梯度的计算，一定主要是`vectorazation`让计算变的更加简洁。
 
-另外刚开始数据集没造好，导致fminunc报错，吸取教训。
+另外刚开始数据集没造好，导致 fminunc 报错，吸取教训。
 
-发现自己还是超前了一点点ng的课程，week4的手写识别，(5000个样本，每个样本20x20 pixel)完全可以用多元logistic regression来实现了,注意加上正则化就好.
-
+发现自己还是超前了一点点 ng 的课程，week4 的手写识别，(5000 个样本，每个样本 20x20 pixel)完全可以用多元 logistic regression 来实现了,注意加上正则化就好.

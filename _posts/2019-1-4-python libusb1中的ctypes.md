@@ -10,8 +10,8 @@ comments: true
 
 <!-- TOC -->
 
-- [Enum](#enum)
-- [Structure](#structure)
+- [Enum](#Enum)
+- [Structure](#Structure)
 - [restype and argstype](#restype-and-argstype)
 - [回调的注册方法](#回调的注册方法)
 - [稍微特殊的函数](#稍微特殊的函数)
@@ -19,17 +19,14 @@ comments: true
 <!-- /TOC -->
 
 参考[python libusb1](https://pypi.org/project/libusb1/)
-python如何调用c语言的库？如果优雅的，规范的调用c语言的库?
-看完python libusb1上面的问题，自然就有答案了.
-
-
-
+python 如何调用 c 语言的库？如果优雅的，规范的调用 c 语言的库?
+看完 python libusb1 上面的问题，自然就有答案了.
 
 ## Enum
 
-libusb里，定义了大量的c的枚举.
+libusb 里，定义了大量的 c 的枚举.
 
-Enum用来将c里的cnum转成python里的数据结构，并可以反查.
+Enum 用来将 c 里的 cnum 转成 python 里的数据结构，并可以反查.
 
 ```py
 class Enum(object):
@@ -64,6 +61,7 @@ class Enum(object):
 ```
 
 测试如下:
+
 ```sh
 from libusb1 import Enum as ReverseEnum
 e = ReverseEnum({})
@@ -77,7 +75,9 @@ e.get(3)
 ```
 
 ## Structure
-自然就是用ctypes里的Structure定义了,同时定义1个pinter类型:
+
+自然就是用 ctypes 里的 Structure 定义了,同时定义 1 个 pinter 类型:
+
 ```py
 class libusb_endpoint_descriptor(Structure):
     _fields_ = [
@@ -93,7 +93,9 @@ class libusb_endpoint_descriptor(Structure):
         ('extra_length', c_int)]
 libusb_endpoint_descriptor_p = POINTER(libusb_endpoint_descriptor)
 ```
-也可以这样定义，可以使用前向声明(比如c里的链表Head结构):
+
+也可以这样定义，可以使用前向声明(比如 c 里的链表 Head 结构):
+
 ```py
 _libusb_transfer_fields = [
     ('dev_handle', libusb_device_handle_p),
@@ -116,26 +118,29 @@ libusb_transfer_p = POINTER(libusb_transfer)
 libusb_transfer._fields_ = _libusb_transfer_fields
 ```
 
-* python 还有能干这个活的内置struct
+- python 还有能干这个活的内置 struct
 
-[比较struct and ctypes Structure](https://stackoverflow.com/questions/52004279/python-similar-functionality-in-struct-and-array-vs-ctypes)
+[比较 struct and ctypes Structure](https://stackoverflow.com/questions/52004279/python-similar-functionality-in-struct-and-array-vs-ctypes)
 
-struct用来pack/unpack binarydata,是ctypes Structure的底层实现.
+struct 用来 pack/unpack binarydata,是 ctypes Structure 的底层实现.
 
-ctypes的Structure的优点，像c一样使用结构体，比较清晰.
+ctypes 的 Structure 的优点，像 c 一样使用结构体，比较清晰.
 
-ctypes的Structure的缺点:uses the byte order that is native to C.当需要处理复杂的bigendian littleendian时，最好用struct,而且效率也高些.
+ctypes 的 Structure 的缺点:uses the byte order that is native to C.当需要处理复杂的 bigendian littleendian 时，最好用 struct,而且效率也高些.
 
 ## restype and argstype
-给从so里load到的函数，定义返回值和参数:
+
+给从 so 里 load 到的函数，定义返回值和参数:
+
 ```py
 libusb_get_device_list = libusb.libusb_get_device_list
 libusb_get_device_list.argtypes = [libusb_context_p, libusb_device_p_p_p]
 libusb_get_device_list.restype = c_ssize_t
 ```
+
 ## 回调的注册方法
 
-c里的回调，在python里处理，自然是用的FUNCTYPE
+c 里的回调，在 python 里处理，自然是用的 FUNCTYPE
 
 ```py
 #typedef int (*libusb_hotplug_callback_fn)(libusb_context *ctx,
@@ -164,7 +169,9 @@ else:
 ```
 
 ## 稍微特殊的函数
-其实也就是用到了cast.
+
+其实也就是用到了 cast.
+
 ```py
 def libusb_fill_control_setup(
         setup_p, bmRequestType, bRequest, wValue, wIndex, wLength):
@@ -178,4 +185,4 @@ def libusb_fill_control_setup(
     setup.wLength = libusb_cpu_to_le16(wLength)
 ```
 
-上面的几个用法搞明白，python调用c不再有什么问题了.
+上面的几个用法搞明白，python 调用 c 不再有什么问题了.

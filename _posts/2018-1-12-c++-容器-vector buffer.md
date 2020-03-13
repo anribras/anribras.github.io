@@ -3,39 +3,42 @@ layout: post
 title:
 modified:
 categories: Tech
- 
+
 tags: [cplusplus]
 
-  
 comments: true
 ---
+
 <!-- TOC -->
 
-- [vector印象](#vector印象)
+- [vector 印象](#vector印象)
 - [Buffer.h](#bufferh)
 
 <!-- /TOC -->
 
-### vector印象
-自增长内存，连续存储，这两点就足够代替c中是malloc数组了。
+### vector 印象
 
-也是遇到了个实际的例子，音频解码接收buffer,需要自增长内存，同时又要很方便的取出。
+自增长内存，连续存储，这两点就足够代替 c 中是 malloc 数组了。
 
-下面直接贴上写好的bufffer，有几点：
+也是遇到了个实际的例子，音频解码接收 buffer,需要自增长内存，同时又要很方便的取出。
 
-* 自增长内存
-* 读取时不需要pop, 因内存连续可用&vec[i]直接寻访地址;
-* 需要取出时，仍然可以用memcpy直接取出,然后erase掉。
-* 用shrink_to_fit减少富余的分配空间。
-* 批量存入时可采样的方法:
+下面直接贴上写好的 bufffer，有几点：
+
+- 自增长内存
+- 读取时不需要 pop, 因内存连续可用&vec[i]直接寻访地址;
+- 需要取出时，仍然可以用 memcpy 直接取出,然后 erase 掉。
+- 用 shrink_to_fit 减少富余的分配空间。
+- 批量存入时可采样的方法:
+
 ```
-std::copy(static_cast<const T*>(raw), 
-					static_cast<const T*>((const T*)raw+len), 
+std::copy(static_cast<const T*>(raw),
+					static_cast<const T*>((const T*)raw+len),
 					back_inserter(inbuff)
 					);
 ```
 
 ### Buffer.h
+
 ```
 #ifndef __SPECIALIZED_BUFFER_H
 #define __SPECIALIZED_BUFFER_H
@@ -60,7 +63,7 @@ extern "C"
 //锁的范围控制在最小，有最好的速度
 //refill机制，
 template<typename T>
-class Buffer 
+class Buffer
 {
 	private:
 		void lock() {
@@ -105,8 +108,8 @@ public:
 			lock();
 
 			//LOGI("put into (%d) ",len);
-			std::copy(static_cast<const T*>(raw), 
-					static_cast<const T*>((const T*)raw+len), 
+			std::copy(static_cast<const T*>(raw),
+					static_cast<const T*>((const T*)raw+len),
 					back_inserter(inbuff)
 					);
 
@@ -127,14 +130,14 @@ public:
 				LOGI("set pos or len error");
 				return -1;
 			}
-			if(inbuff.size() < (len)  || 
+			if(inbuff.size() < (len)  ||
 					inbuff.size() < (pos+len)) {
 				LOGI("wana from(%ld) get (%ld) but only(%ld) total, wait",
 						pos, len, inbuff.size());
 				wait();
 			}
-			
-			memcpy(data, &inbuff[pos], len * sizeof(T)); 
+
+			memcpy(data, &inbuff[pos], len * sizeof(T));
 			if(drain_flag)
 				inbuff.erase(inbuff.begin()+(long)pos,inbuff.begin() + (long)(pos+len));
 			return 0;
@@ -187,7 +190,7 @@ public:
 					inbuff.begin() + end);
 
 			//LOGI("going to shrinking cap(%d) size(%d)",inbuff.capacity(), inbuff.size());
-			if(inbuff.capacity() > CAPACITY_MAX && 
+			if(inbuff.capacity() > CAPACITY_MAX &&
 				inbuff.capacity() > inbuff.size() * 2){
 				LOGI("shrinking");
 				inbuff.shrink_to_fit();
@@ -200,7 +203,7 @@ public:
 			lock();
 			if(inbuff.size() <= size)  {
 			   //LOGI("wait till ( size > %d)",size);
-			   wait();	
+			   wait();
 			}
 			unlock();
 			return 0;

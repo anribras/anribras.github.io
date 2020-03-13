@@ -3,19 +3,17 @@ layout: post
 title:
 modified:
 categories: Tech
- 
 tags: [backend]
-
-  
 comments: true
 ---
+
 <!-- TOC -->
 
-- [４种IO方法](#４种io方法)
+- [４种IO方法](#４种IO方法)
 - [reactor和proactor](#reactor和proactor)
-    - [基本概念](#基本概念)
-    - [reactor和IO多路复用的区别](#reactor和io多路复用的区别)
-    - [proactor](#proactor)
+  - [基本概念](#基本概念)
+  - [reactor和IO多路复用的区别](#reactor和IO多路复用的区别)
+  - [proactor](#proactor)
 
 <!-- /TOC -->
 
@@ -38,11 +36,12 @@ comments: true
 前者是一个完整的设计模式,后者仅仅是一种io方法。
 
 reactor:
-* 封装了IO复用的使用
-* 响应分类　读的，写的，超时的..
-* 事件分发和应用处理逻辑分离，应用注册hander,处理hander即可，不用关心怎么来的。
-* 如果Reactor多任务并发，是在一个线程中进行的,为单线程模式，一般为这种模式
-* 异步回调产生后，还需要才callback里处理IO
+
+- 封装了IO复用的使用
+- 响应分类　读的，写的，超时的..
+- 事件分发和应用处理逻辑分离，应用注册hander,处理hander即可，不用关心怎么来的。
+- 如果Reactor多任务并发，是在一个线程中进行的,为单线程模式，一般为这种模式
+- 异步回调产生后，还需要才callback里处理IO
 
 #### proactor
 

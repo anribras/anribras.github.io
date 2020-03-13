@@ -6,25 +6,24 @@ categories: Tech
 tags: [cplusplus]
 comments: true
 ---
+
 <!-- TOC -->
 
 - [要点](#要点)
-    - [set_new_handler](#set_new_handler)
+- [set_new_handler](#set_new_handler)
 
 <!-- /TOC -->
 
-
-
-
-# 要点
+## 要点
 
 ## set_new_handler
 
-std::new_handler给机会处理new的异常.但是是个global的.　
+std::new_handler 给机会处理 new 的异常.但是是个 global 的.
 
 下面实现的针对某个类的.
 
-要点:　
+要点:
+
 ```cpp
 1. 重载new[];
 2. 重载的new，其实还是::operator new, 不过是自定义下new_handler;
@@ -106,7 +105,7 @@ void item49()
 int main()
 {
 	//item49();
-	
+
 	// new handler just for A;
 	A::set_new_handler(new_error);
 
@@ -118,13 +117,17 @@ int main()
 	}
 }
 ```
+
 output:
+
 ```sh
 my new
 new Failed
 out
 ```
-上面代码还要问题，如果有B,也继承自NewHanlder
+
+上面代码还要问题，如果有 B,也继承自 NewHanlder
+
 ```cpp
 class B : public NewHander {
 private:
@@ -138,14 +141,14 @@ try{
 	std::cout << e << std::endl;
 }
 ```
-通过A设计的handler,对B也起作用了!
-因为NewHander不是实体各异的，也就是共享了staitc 1个cur;
-解决之道自然是实现template<typename T> Newhander,即模板类，这样编译多态，不同的具体化的模板类，都有自己的static cur.
+
+通过 A 设计的 handler,对 B 也起作用了!
+因为 NewHander 不是实体各异的，也就是共享了 staitc 1 个 cur;
+解决之道自然是实现 `template<typename T> Newhander`,即模板类，这样编译多态，不同的具体化的模板类，都有自己的 static cur.
 
 ```cpp
 class A : public NewHandler<A> {...}
 class B : public NewHandler<B> {...}
 ```
+
 这种继承方法确实怪异，叫`curiously recurring template pattern`,CRTP.
-
-

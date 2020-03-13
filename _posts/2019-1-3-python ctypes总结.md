@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 
+title:
 modified:
 categories: Tech
 tags: [python]
@@ -10,51 +10,55 @@ comments: true
 <!-- TOC -->
 
 - [核心概念](#核心概念)
-- [实例1: ctypes + socket](#实例1-ctypes--socket)
-- [实例2 libusb使用](#实例2-libusb使用)
+- [实例 1: ctypes + socket](#实例-1-ctypes--socket)
+- [实例 2 libusb 使用](#实例-2-libusb-使用)
 - [末了](#末了)
 
 <!-- /TOC -->
 
-
 ## 核心概念
 
-[ctypes官方](https://docs.python.org/3/library/ctypes.html)
+[ctypes 官方](https://docs.python.org/3/library/ctypes.html)
 
-* 类型一览 
+- 类型一览
 
-ctypes是python定义的为实现类型转换的中间层，是纯python数据类型与c类型通信的桥梁.
+ctypes 是 python 定义的为实现类型转换的中间层，是纯 python 数据类型与 c 类型通信的桥梁.
 ![Screenshot from 2019-01-03 11-33-04-fecf6500-f845-4dd4-bc06-2deb65be7f33](https://images-1257933000.cos.ap-chengdu.myqcloud.com/Screenshot%20from%202019-01-03%2011-33-04-fecf6500-f845-4dd4-bc06-2deb65be7f33.png)
 
-除了None,integer,string，bytes，(隐式转换), 其他都需要转换成ctypes类型作为参数.
+除了 None,integer,string，bytes，(隐式转换), 其他都需要转换成 ctypes 类型作为参数.
+
 ```sh
 None -->NULL
 string bytes -- > char* wchar_t*
 integer -- > int
 ```
+
 ```py
 #c_double 必须显示转换
 printf(b'Hello %s %f\n', b'Wisdom', c_double(1.23))
 ```
-标准类型里唯一要注意的是c_char_p,很像C里的字符串类型， 它只能转换integer或者bytes作为输入.
 
-普通的'char *'类型用POINTER(c_char)
+标准类型里唯一要注意的是 c_char_p,很像 C 里的字符串类型， 它只能转换 integer 或者 bytes 作为输入.
+
+普通的'char \*'类型用 POINTER(c_char)
+
 ```sh
 class ctypes.c_char_p
-Represents the C char * datatype when it points to a zero-terminated string. For a general character pointer that may also point to binary data, POINTER(c_char) must be used. The constructor accepts an integer address, or a bytes object.
+Represents the C char * datatype when it points to a zero-terminated string. For a general character pointer that may also point to binary data, POINTER(c_char) must be used.
+The constructor accepts an integer address, or a bytes object.
 ```
 
-* 严格区分类型
+- 严格区分类型
 
-不像c指针那么万能,python里一切皆对象.数组，指针都是要按不同的类型来分开的。
+不像 c 指针那么万能,python 里一切皆对象.数组，指针都是要按不同的类型来分开的。
 
 ```sh
-1 int a = 100;  
+1 int a = 100;
     ----> ct_a = c_int(100)
-2 int array[100] = {0,1,2,...} 
+2 int array[100] = {0,1,2,...}
     ---->ct_array = (c_int* 100)(0,1,2,...)
          for i in ct_array: print(i)
-3 int *ptr = &a;  
+3 int *ptr = &a;
     ----> ct_ptr = POINTER(c_int)(ct_a)
           ct_ptr.contents
           c_int(10)
@@ -62,34 +66,36 @@ Represents the C char * datatype when it points to a zero-terminated string. For
 // ptr[0] = 200
     ----> ct_ptr[0] = 200 or ct_ptr.contents.value = 300
 5 int *ptr_arr = array;
-    ---->  ctype做不到! 对python 来讲，数组和指针是不同的类型 
+    ---->  ctype做不到! 对python 来讲，数组和指针是不同的类型
 ```
 
-* Access dll function and values
+- Access dll function and values
 
-function见下面例2.
+function 见下面例 2.
 
 value:
+
 ```sh
 >>> opt_flag = c_int.in_dll(pythonapi, "Py_OptimizeFlag")
 >>> print(opt_flag)
 c_long(0)
 ```
 
-* resttype argstype
+- resttype argstype
 
-load c的lib后，必须告诉Python,一个ctype函数的形参类型和返回的值的类型, 函数才能正确地在python里调用.
+load c 的 lib 后，必须告诉 Python,一个 ctype 函数的形参类型和返回的值的类型, 函数才能正确地在 python 里调用.
+
 ```py
 libusb_alloc_transfer = libusb.libusb_alloc_transfer
 libusb_alloc_transfer.argtypes = [c_int]
 libusb_alloc_transfer.restype = libusb_transfer_p
 ```
 
-* convert python type to ctype
+- convert python type to ctype
 
-1.构造ctype对象时输入;
+  1.构造 ctype 对象时输入;
 
-2.通过value输入输入;
+  2.通过 value 输入输入;
 
 ```sh
 ct_int = ctypes.c_int(100)
@@ -99,8 +105,10 @@ ct_int.value = 200
 ct_int
 c_int(200)
 ```
-如果是ctype指针，也是要通过赋值:
-但是python的bytes是immutable的，也就是bytes内容变化，是指向了另外的内存，而不是内存内容本身发生了变化，这和c的一些要求是不符合的:
+
+如果是 ctype 指针，也是要通过赋值:
+但是 python 的 bytes 是 immutable 的，也就是 bytes 内容变化，是指向了另外的内存，而不是内存内容本身发生了变化，这和 c 的一些要求是不符合的:
+
 ```sh
 ct_str = ctypes.c_wchar_p('Hi!')
 ct_str.value
@@ -113,43 +121,50 @@ ct_str.value
 ct_str
 c_wchar_p(140093530479112)
 ```
-用下面的 create_string_buffer解决问题
 
-* create_string_buffer
-创建可修改的ctype内存空间
+用下面的 create_string_buffer 解决问题
+
+- create_string_buffer
+  创建可修改的 ctype 内存空间
+
 ```sh
 >>buf = create_string_buffer(b'12345')
 >>buf.value
 >>b'12345'
 ```
 
-* byref and pointer and POINTER 
+- byref and pointer and POINTER
 
 `byref`:
 
-拿到ctype instance的指针对象，,offset是偏移的地址. 但是只能用作ctype函数的参数,比pointer(obj)更快.
+拿到 ctype instance 的指针对象，,offset 是偏移的地址. 但是只能用作 ctype 函数的参数,比 pointer(obj)更快.
 
 `pointer`:
 
-pointer则是构造ctype对象的ctype pointer实例对象,`普通对象变成指针对象`
+pointer 则是构造 ctype 对象的 ctype pointer 实例对象,`普通对象变成指针对象`
+
 ```sh
 ctypes.pointer(obj)
 Pointer instances are created by calling the pointer() function on a ctypes type.
 This function creates a new pointer instance, pointing to obj. The returned object is of the
 type POINTER(type(obj)).
 ```
-用contents取出内容,类似于`*a`:
 
-* POINTER
+用 contents 取出内容,类似于`*a`:
 
-POINTER仅仅是ctype层面的指针类型转换，比如1个ctypes类型转成其指针的类型,`类型变成指针类型` 
+- POINTER
+
+POINTER 仅仅是 ctype 层面的指针类型转换，比如 1 个 ctypes 类型转成其指针的类型,`类型变成指针类型`
+
 ```sh
 ctypes.POINTER(type)
 This factory function creates and returns a new ctypes pointer type. Pointer types are
 cached and reused internally, so calling this function repeatedly is cheap. type must be a
 ctypes type.
 ```
+
 例子:
+
 ```sh
 libc.printf(b'%x',byref(c_int(123)))
 >>bf60f9188
@@ -173,11 +188,11 @@ type(ip_1)
 >>False
 ```
 
-* Structure
+- Structure
 
 参考下面例子里定义.
 
-1.注意一点，字节序是native bytes order.
+1.注意一点，字节序是 native bytes order.
 
 2.前向声明结构体的方式:
 
@@ -193,17 +208,17 @@ type(ip_1)
 >>>
 ```
 
+- Array
 
-* Array
+不同类型再乘以 1 个数即得到数组.
 
-不同类型再乘以1个数即得到数组.
 ```sh
 ct_int_array = c_int * 10
 type(ct_int_array)
 <class '_ctypes.PyCArrayType'>
 ```
 
-* memmove memset
+- memmove memset
 
 ```sh
 ctypes.memmove(dst, src, count)
@@ -213,14 +228,13 @@ ctypes.memset(dst, c, count)
 Same as the standard C memset library function: fills the memory block at address dst with count bytes of value c. dst must be an integer specifying an address, or a ctypes instance.
 ```
 
-* cast:
+- cast:
 
-类似c里的强制指针类型转换,将1个可转换为指针类型的object，转换为第2个参数指定的ctype pointer类型, 返回新的ctype pointer的实例.
+类似 c 里的强制指针类型转换,将 1 个可转换为指针类型的 object，转换为第 2 个参数指定的 ctype pointer 类型, 返回新的 ctype pointer 的实例.
 
-必须是`One POINTER to another POINTER`.如Array POINTER object转Structure POINTER的object:
+必须是`One POINTER to another POINTER`.如 Array POINTER object 转 Structure POINTER 的 object:
 
-(理论上，可以Structure转Array,但是没有这样的接口，只有cast通过POINTER转换才能做到)
-
+(理论上，可以 Structure 转 Array,但是没有这样的接口，只有 cast 通过 POINTER 转换才能做到)
 
 ```py
 length = 100
@@ -229,14 +243,16 @@ p = cast(pointer(s), POINTER(c_char * length))
 #得到Structure的原始数据
 raw = p.contents.raw
 
-arr = (c_char * len(raw))()  
+arr = (c_char * len(raw))()
 arr.raw = raw
 
 s1 = cast(pointer(arr),POINTER(Structure))
 #又把bytes 恢复成了ctype的structure
 s1.contents
 ```
-相当于c里的:
+
+相当于 c 里的:
+
 ```c
 Structure * s = new Structure();
 char** p = (char*)&s;
@@ -244,9 +260,10 @@ char** p = (char*)&s;
 Structure * s1 = (Structure*)(*p);
 ```
 
-* addressof
+- addressof
 
 获得数据的内存存储地址
+
 ```sh
 a = c_int(100)
 addressof(a)
@@ -258,16 +275,16 @@ byref(a)
 <cparam 'P' (0x7f24975f8780)>
 ```
 
-**神奇的几个地址**
+- 神奇的几个地址
 
-下面3个地址分别是什么?
+下面 3 个地址分别是什么?
 
 ```sh
 ct_arr_ptr =  pointer((c_int*5)(1,2,3,4,5))
 # 这是ct_arr_ptr对象的地址
 <__main__.LP_c_int_Array_5 object at 0x7f2496542d90>
 
-# 这是ct_arr_ptr所指向的内容在内存中的真实地址 
+# 这是ct_arr_ptr所指向的内容在内存中的真实地址
 hex(addressof(ct_arr_ptr.contents))
 '0x7f24966101e0'
 hex(addressof(ct_arr_ptr.contents))
@@ -280,15 +297,14 @@ ct_arr_ptr.contents
 
 ```
 
+- CFUNCTYPE
 
-* CFUNCTYPE
+用来定义 ctype 的函数指针，指向 python 函数,实际是传给 c 语言调用的.
 
-用来定义ctype的函数指针，指向python函数,实际是传给c语言调用的.
-
-到这可以看到python和c的相互调用方式了:
+到这可以看到 python 和 c 的相互调用方式了:
 
 ```sh
-1 python里loadlibrary方式调用c; 
+1 python里loadlibrary方式调用c;
 2 python提供FUNCTYPE的python回调给c语言调用;
 ```
 
@@ -315,24 +331,24 @@ def python_cmp(a,b):
 qsort(ia,len(ia),sizeof(c_int),python_cmp)
 
 ```
-* FUNCTYPE 和PFUNCTYPE的区别?
 
-FUNCTYPE是封装的python函数是给c语言调用的，它将不受GIL影响，纯c的.
+- FUNCTYPE 和 PFUNCTYPE 的区别?
 
-而PFUNCTYPE封装的python函数仍然受GIL影响，这个区别还是很大的.
+FUNCTYPE 是封装的 python 函数是给 c 语言调用的，它将不受 GIL 影响，纯 c 的.
 
-c希望调用的python不要卡在GIL里的话，用FUNCTYPE;如果有些GIL操作再c里不可忽略，用PFUNCTYPE.
+而 PFUNCTYPE 封装的 python 函数仍然受 GIL 影响，这个区别还是很大的.
 
+c 希望调用的 python 不要卡在 GIL 里的话，用 FUNCTYPE;如果有些 GIL 操作再 c 里不可忽略，用 PFUNCTYPE.
 
-## 实例1: ctypes + socket
+## 实例 1: ctypes + socket
 
-1. 对端用c语言tcp socket发送 
+1. 对端用 c 语言 tcp socket 发送
 
-2. python socket.recv , 得到bytes(b'xxxx') 
+2. python socket.recv , 得到 bytes(b'xxxx')
 
 3. ctypes Structure
 
-4. 转换bytes to ctypes 解析数据,用Structure按c的方式解析数据.
+4. 转换 bytes to ctypes 解析数据,用 Structure 按 c 的方式解析数据.
 
 ```py
 def struct2stream(s):
@@ -373,7 +389,7 @@ class StructConverter(object):
     @classmethod
     def encoding(cls, raw, structs):
         """
-            'encode' means raw binary stream to ctype structure. 
+            'encode' means raw binary stream to ctype structure.
         """
         if raw is not None and structs is not None:
             return stream2struct(raw, structs)
@@ -410,11 +426,11 @@ except socket.error as e:
     return
 ```
 
-## 实例2 libusb使用
+## 实例 2 libusb 使用
 
 参考[python libusb1](https://pypi.org/project/libusb1/)
 
-并以自己实现的python调用libusb底层库的实现为例子:
+并以自己实现的 python 调用 libusb 底层库的实现为例子:
 
 ```py
 def aoa_update_point(self, action, x, y, ops=0):
@@ -441,7 +457,7 @@ def aoa_update_point(self, action, x, y, ops=0):
 
     #transfer是1个Structurue pointer obj
     transfer = U.libusb_alloc_transfer(0)
-    # contents是实体 
+    # contents是实体
     transfer.contents.actual_length = sizeof(Report)
     # p_report = cast(pointer(report), c_void_p)
     transfer.contents.buffer = cast(pointer(report), c_void_p)
@@ -483,6 +499,7 @@ def aoa_update_point(self, action, x, y, ops=0):
         return rets
     return rets
 ```
+
 ## 末了
 
 ```sh

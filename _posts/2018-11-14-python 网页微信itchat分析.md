@@ -3,37 +3,37 @@ layout: post
 title:
 modified:
 categories: Tech
- 
+
 tags: [python]
 
-  
 comments: true
 ---
 
 <!-- TOC -->
 
-- [itchat可以做什么](#itchat可以做什么)
-- [itchat实现分析](#itchat实现分析)
-    - [AbstractUserDict](#abstractuserdict)
-    - [Contactlist](#contactlist)
-    - [Storage](#storage)
+- [itchat 可以做什么](#itchat-可以做什么)
+- [itchat 实现分析](#itchat-实现分析)
+  - [AbstractUserDict](#AbstractUserDict)
+  - [Contactlist](#Contactlist)
+  - [Storage](#Storage)
 
 <!-- /TOC -->
 
 [itchat](https://itchat.readthedocs.io/zh/latest/)
 
-## itchat可以做什么
+## itchat 可以做什么
 
-itchat封装了微信web api，蛮好用的，可以做一些有意思的事情:
+itchat 封装了微信 web api，蛮好用的，可以做一些有意思的事情:
 
-另外还有个库itchatmp和公众号管理相关的
+另外还有个库 itchatmp 和公众号管理相关的
 
 脑洞可以这么打开:
-* 管理
+
+- 管理
 
 所有聊天记录备份
 
-聊天记录监控(一个打入敌人内部的人...加了n多群)
+聊天记录监控(一个打入敌人内部的人...加了 n 多群)
 
 群聊管理,自动拉群，定时群发(拜年)
 
@@ -45,7 +45,7 @@ itchat封装了微信web api，蛮好用的，可以做一些有意思的事情:
 
 谁删了我?
 
-* 账号云图分析
+- 账号云图分析
 
 联系人统计分析，个人关注的公众号，做口味分析
 
@@ -55,8 +55,8 @@ itchat封装了微信web api，蛮好用的，可以做一些有意思的事情:
 
 聊天记录分析?-->词云
 
-* 控制入口，后台的空间任意想象
-webapi app-->微信入口--->any后台
+- 控制入口，后台的空间任意想象
+  webapi app-->微信入口--->any 后台
 
 聊天机器人
 
@@ -68,20 +68,20 @@ webapi app-->微信入口--->any后台
 
 收到文本-->后台-->回复各种萌萌哒语音
 
-收到语音-->后台tts,分析后-->回复各种指令，控制
+收到语音-->后台 tts,分析后-->回复各种指令，控制
 
 收到图像-->后台分析--->给出反馈，如美化，识别结果 等
 
-
 自动问题告警
 
-## itchat实现分析
+## itchat 实现分析
 
 封装的还是不错的，可以剖析下
 
 ### AbstractUserDict
 
 先搞清楚以下继承链:
+
 ```sh
 list->AttributeDict->AbstractUserDict-->(User, ChatRoom,MassivePlatform)
 
@@ -104,13 +104,15 @@ send
 search_member
 ```
 
-AbstractUserDict里的send，基本都是调用core里的,core是通过property设置的一个属性
+AbstractUserDict 里的 send，基本都是调用 core 里的,core 是通过 property 设置的一个属性
 
 ```py
 def send_image(self, fileDir, mediaId=None):
     return self.core.send_image(fileDir, self.userName, mediaId)
 ```
-core类里也不是真正实现函数地方，还有其他地方
+
+core 类里也不是真正实现函数地方，还有其他地方
+
 ```py
   def send_msg(self, msg='Test Message', toUserName=None):
         ''' send plain text message
@@ -121,9 +123,11 @@ core类里也不是真正实现函数地方，还有其他地方
         '''
         raise NotImplementedError()
 ```
-应该是core.py最后的load_components,各种的实现又放在各自的py里，如contact.py,hotreload.py等
 
-具体的requets用法，都在这些文件里，好好看懂，基本就是这个了.
+应该是 core.py 最后的 load_components,各种的实现又放在各自的 py 里，如 contact.py,hotreload.py 等
+
+具体的 requets 用法，都在这些文件里，好好看懂，基本就是这个了.
+
 ```py
 from .contact import load_contact
 from .hotreload import load_hotreload
@@ -139,7 +143,8 @@ def load_components(core):
     load_register(core)
 ```
 
-在load_xxx指向了真正的调用者，这样的好处?封装，解耦把? 还有绝的比较好的,就是简化import
+在 load_xxx 指向了真正的调用者，这样的好处?封装，解耦把? 还有绝的比较好的,就是简化 import
+
 ```py
 def load_contact(core):
     core.update_chatroom             = update_chatroom
@@ -158,13 +163,16 @@ def load_contact(core):
     core.add_member_into_chatroom    = add_member_into_chatroom
 ```
 
-
 ### Contactlist
-还有1个contactlist，继承自list, 也是把core当成了一个属性
+
+还有 1 个 contactlist，继承自 list, 也是把 core 当成了一个属性
+
 ```sh
 list->Contactlist
 ```
-ContactList 有1个ContactClass成员，就是上面的AbstractUserDict的子类实现,通过set_default_value赋值:
+
+ContactList 有 1 个 ContactClass 成员，就是上面的 AbstractUserDict 的子类实现,通过 set_default_value 赋值:
+
 ```py
 def set_default_value(self, initFunction=None, contactClass=None):
     if hasattr(initFunction, '__call__'):
@@ -173,7 +181,9 @@ def set_default_value(self, initFunction=None, contactClass=None):
         self.contactClass = contactClass
 
 ```
-调用ContactList.append时，会用到:
+
+调用 ContactList.append 时，会用到:
+
 ```py
  def append(self, value):
         contact = self.contactClass(value)
@@ -185,7 +195,8 @@ def set_default_value(self, initFunction=None, contactClass=None):
 ```
 
 ### Storage
-哪个类又用到了ContactList?是Storage.存1个用户所有的联系人信息?核心是实现了各种search
+
+哪个类又用到了 ContactList?是 Storage.存 1 个用户所有的联系人信息?核心是实现了各种 search
 
 ```py
 class Storage(object):
@@ -210,7 +221,8 @@ class Storage(object):
     def search_mps(self, name=None, userName=None):
 ```
 
-Storage又被谁用？自然是core里引用:
+Storage 又被谁用？自然是 core 里引用:
+
 ```py
 class Core(object):
     def __init__(self):

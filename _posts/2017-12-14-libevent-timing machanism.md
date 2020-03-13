@@ -3,46 +3,64 @@ layout: post
 title:
 modified:
 categories: Tech
- 
-tags: [libevent,backend]
 
-  
+tags: [libevent, backend]
 ---
+
 <!-- TOC -->
 
 - [分析](#分析)
 - [evene_base_loop](#evene_base_loop)
 - [event_process_active_single_queue](#event_process_active_single_queue)
-    - [event_signal_closure](#event_signal_closure)
-    - [event_persist_closure](#event_persist_closure)
+- [event_signal_closure](#event_signal_closure)
+- [event_persist_closure](#event_persist_closure)
 
 <!-- /TOC -->
 
 ### 分析
 
-超时应该是libevent封装的最核心功能之一,也可以理解为定时器的实现原理。为了执行回调，libevent用了队列的数据结构来缓冲callback
+超时应该是 libevent 封装的最核心功能之一,也可以理解为定时器的实现原理。为了执行回调，libevent 用了队列的数据结构来缓冲 callback
 
 核心流程在`event_base_loop`函数中实现。
 
-1. 在event_base_loop中，必然有个顶层的while,每次跳出IO复用时,需要刷新IO复用的等待时间(如select的超时参数)。
-2. 每个超时event都用绝对值记录了要发生的时间点,比如某个event READ超时为相对调用时的100ms，先要转换成绝对时间，比如1:00:00,转换成秒就是3600s。
-3. event_base保存了绝对的时间起点(event_base->event_tv)，有了它才能根据相对时间计算绝对时间，而且需要函数`time_correct`修正。
-4. 相对的超时时间用min_heap记录，可以记录非常多的超时时间，可以从堆顶很方便的取出minimum time.libevent作者甚至还嫌弃min_heap效率不够高，用common_timeout来针对不变的时间，为了提高效率真是挖空心思.这看看[这篇文章](http://blog.csdn.net/luotuo44/article/details/38678333)
-5. 把IO复用的调用理解为dispatch,需要计算当前时间(nowtime)和event中的最小时间(minimum time)的差值tv_p,该部分在`time_next`中实现。
-`tv_p>0 `说明最小的超时事件还没发生，仍然需要等待tv_p的时间。 如果为0，不需要超时,则同步阻塞等待。
-```c++
+- 1
+  在 event_base_loop 中，必然有个顶层的 while,每次跳出 IO 复用时,需要刷新 IO 复用的等待时间(如 select 的超时参数)。
+- 2
+  每个超时 event 都用绝对值记录了要发生的时间点,比如某个 event READ 超时为相对调用时的 100ms，先要转换成绝对时间，比如 1:00:00,转换成秒就是 3600s。
+
+- 3
+  event_base 保存了绝对的时间起点(event_base->event_tv)，有了它才能根据相对时间计算绝对时间，而且需要函数`time_correct`修正。
+
+- 4
+
+相对的超时时间用 min_heap 记录，可以记录非常多的超时时间，可以从堆顶很方便的取出 minimum time.libevent 作者甚至还嫌弃 min_heap 效率不够高，用 common_timeout 来针对不变的时间，为了提高效率真是挖空心思.这看看[这篇文章](http://blog.csdn.net/luotuo44/article/details/38678333)
+
+- 5
+
+把 IO 复用的调用理解为 dispatch,需要计算当前时间(nowtime)和 event 中的最小时间(minimum time)的差值 tv_p,该部分在`time_next`中实现。`tv_p>0`说明最小的超时事件还没发生，仍然需要等待 tv_p 的时间。 如果为 0，不需要超时,则同步阻塞等待。
+
+```cpp
 res = evsel->dispatch(base, tv_p);
 ```
-6. dispatch返回，说明有事件发生。逐个遍历min_heap中的每个time和当前时间nowtime比较，如果`time < now`,则超时已经发生了，需要调用相应的回调`event_active_nolock`,并删除该event的事件。直到遇到`time > now`,则停止回调，整个实现在`timeout_process`中。
-7. 真正的执行callback在`event_process_active`。callback是在已经insert的active队列里按优先级从队列里逐个执行回调。添加到active队列是用`event_queue_insert`函数。
+
+- 6
+  dispatch 返回，说明有事件发生。逐个遍历 min_heap 中的每个 time 和当前时间 nowtime 比较，如果`time < now`,则超时已经发生了，需要调用相应的回调`event_active_nolock`,并删除该 event 的事件。直到遇到`time > now`,则停止回调，整个实现在`timeout_process`中。
+
+- 7
+  真正的执行 callback 在`event_process_active`。callback 是在已经 insert 的 active 队列里按优先级从队列里逐个执行回调。添加到 active 队列是用`event_queue_insert`函数。
 
 整理下１个回调的整个调用链条是:
-* event_base_loop-> dispatch->event_process_acitive->callbacks in queue
 
-回过头看，还是**IO复用模式的骨架**。
+```sh
+event_base_loop-> dispatch->event_process_acitive->callbacks in queue
+```
+
+回过头看，还是**IO 复用模式的骨架**。
 
 ### evene_base_loop
+
 一些地方用中文做了注解.
+
 ```c
 event_base_loop(struct event_base *base, int flags)
 {
@@ -129,7 +147,7 @@ event_base_loop(struct event_base *base, int flags)
 
         //又是为了效率，为了不同每次调用time_api，可以把系统的的时间cache起来
         update_time_cache(base);
-        
+
 
         timeout_process(base);
 
@@ -156,8 +174,10 @@ done:
 ```
 
 ### event_process_active_single_queue
+
 在`event_process_acitive`被调用，是真正执行回调的地方，
-```c 
+
+```c
 event_process_active_single_queue(struct event_base *base,
     struct event_list *activeq)
 {
@@ -171,7 +191,7 @@ event_process_active_single_queue(struct event_base *base,
 			event_queue_remove(base, ev, EVLIST_ACTIVE);
 		else
 			event_del_internal(ev);
-		//该函数可能发生多个callback 
+		//该函数可能发生多个callback
 		if (!(ev->ev_flags & EVLIST_INTERNAL))
 			++count;
 
@@ -220,8 +240,10 @@ event_process_active_single_queue(struct event_base *base,
 }
 
 ```
-这段代码决定了真正的callback调用，又根据closure分为了不同的调用执行方式。
-```c 
+
+这段代码决定了真正的 callback 调用，又根据 closure 分为了不同的调用执行方式。
+
+```c
 switch (ev->ev_closure) {
 		case EV_CLOSURE_SIGNAL:
 			event_signal_closure(base, ev);
@@ -237,12 +259,13 @@ switch (ev->ev_closure) {
 			break;
 		}
 ```
-#### event_signal_closure
 
-信号类的回调, ncalls记录多少个相同的信号同时发生了。
-event_break给了中止同时多个回调执行的机会,由`event_base_loopbreak`控制。
+### event_signal_closure
 
-```c 
+信号类的回调, ncalls 记录多少个相同的信号同时发生了。
+event_break 给了中止同时多个回调执行的机会,由`event_base_loopbreak`控制。
+
+```c
 /* "closure" function called when processing active signal events */
 static inline void
 event_signal_closure(struct event_base *base, struct event *ev)
@@ -275,9 +298,12 @@ event_signal_closure(struct event_base *base, struct event *ev)
 }
 
 ```
-#### event_persist_closure
-event类型为EV_PERSIST，这个是持续的触发回到的意思,否则每add一次，只触发一次。
-在超时事件event assign时，如果标记为EV_PERSIST,则会记住该超时时间在`ev_io_timeout`里。
+
+### event_persist_closure
+
+event 类型为 EV_PERSIST，这个是持续的触发回到的意思,否则每 add 一次，只触发一次。
+在超时事件 event assign 时，如果标记为 EV_PERSIST,则会记住该超时时间在`ev_io_timeout`里。
+
 ```
 			ev->ev_io_timeout = *tv;
 ```

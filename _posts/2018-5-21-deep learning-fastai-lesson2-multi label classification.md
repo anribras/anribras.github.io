@@ -3,10 +3,9 @@ layout: post
 title:
 modified:
 categories: Tech
- 
-tags: [fastai,deep-learning]
 
-  
+tags: [fastai, deep-learning]
+
 comments: true
 ---
 
@@ -14,15 +13,13 @@ comments: true
 
 - [cnn](#cnn)
 - [multi-label classification](#multi-label-classification)
-    - [data augumentation](#data-augumentation)
+  - [data augumentation](#data-augumentation)
 
 <!-- /TOC -->
 
-
-
 ### cnn
 
-这个不用多讲了,倒是要看看pytorch是怎么实现的就好
+这个不用多讲了,倒是要看看 pytorch 是怎么实现的就好
 
 ### multi-label classification
 
@@ -30,17 +27,17 @@ comments: true
 In multi-label classification each sample can belong to one or more clases.
 ```
 
-比如y可能是:
+比如 y 可能是:
 
 ```
 [1 0 1 0 ....1]
-```  
+```
 
-最终的预测从高到低的选取多个label即可。
+最终的预测从高到低的选取多个 label 即可。
 
 #### data augumentation
 
-不同的image分类问题，适应不同的augumentaion方法，像dog and cat就不要旋转180，而planet这种卫星图片就可以.
+不同的 image 分类问题，适应不同的 augumentaion 方法，像 dog and cat 就不要旋转 180，而 planet 这种卫星图片就可以.
 
 ```py
 def get_data(sz):
@@ -49,5 +46,4 @@ def get_data(sz):
                     suffix='.jpg', val_idxs=val_idxs, test_name='test-jpg')
 ```
 
-fastai全做好了，会根据train set的label自动区分.
-
+fastai 全做好了，会根据 train set 的 label 自动区分.

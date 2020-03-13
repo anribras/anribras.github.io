@@ -3,10 +3,9 @@ layout: post
 title:
 modified:
 categories: Tech
- 
+
 tags: [tools]
 
-  
 comments: true
 ---
 
@@ -16,33 +15,32 @@ comments: true
 
 <!-- /TOC -->
 
-其实自己也是个工具党，vim+tmux 已经用的非常6了。现在把自己的配置记录下。也可以到我的[github-config](https://github.com/anribras/gvim)上下载。
+其实自己也是个工具党，vim+tmux 已经用的非常 6 了。现在把自己的配置记录下。也可以到我的[github-config](https://github.com/anribras/gvim)上下载。
 
-tmux带来的方便性一张图就可以说明:
+tmux 带来的方便性一张图就可以说明:
 
 ![2017-12-26-10-55-07](https://images-1257933000.cos.ap-chengdu.myqcloud.com/2017-12-26-10-55-07.png)
 
-项目多，开的窗口多，随时要切换，不同窗口可能开了不同的环境脚本，不用tmux用什么...
+项目多，开的窗口多，随时要切换，不同窗口可能开了不同的环境脚本，不用 tmux 用什么...
 
-.tmux.conf放在`~`目录下就好。
+.tmux.conf 放在`~`目录下就好。
 
 ### .tmux.conf
 
-* solarized dark背景
-* 自定义底部状态栏
+- solarized dark 背景
+- 自定义底部状态栏
 
-加载了一个右下角的显示时间，cpu内存等的信息栏的脚本`tmux-mem-cpu-load`。
+加载了一个右下角的显示时间，cpu 内存等的信息栏的脚本`tmux-mem-cpu-load`。
 来自[这位大神](https://github.com/thewtex/tmux-mem-cpu-load)。
-另外x260灭有capslock按键，用脚本写了监控按键的显示
+另外 x260 灭有 capslock 按键，用脚本写了监控按键的显示
 
-* 复制到系统剪切板
+- 复制到系统剪切板
 
-tmux有个要命的缺陷就是无法复制到系统剪切板，借助`xclip`和快捷键绑定完成。
+tmux 有个要命的缺陷就是无法复制到系统剪切板，借助`xclip`和快捷键绑定完成。
 
-* tmux插件
+- tmux 插件
 
-下载tpm后，可以方便的管理tmux插件,详细可以见配置里。
-
+下载 tpm 后，可以方便的管理 tmux 插件,详细可以见配置里。
 
 ```
 set -g default-terminal "screen-256color"
@@ -74,7 +72,7 @@ set -g status-right "#[fg=red,bold]Caps<#(xset q |grep Caps |awk '{print $4}')>#
 # 窗口信息左对齐
 #set -g status-justify center
 # 设置自动刷新的时间间隔
-set -g status-interval 1 
+set -g status-interval 1
 # 监视窗口信息，如有内容变动，进行提示
 setw -g monitor-activity on
 set -g visual-activity on
@@ -92,7 +90,7 @@ bind-key -t vi-copy y copy-pipe 'xclip -selection clipboard >/dev/null'
 #preifx +  jkhl jump tmux window
 #up
 bind-key k select-pane -U
-#down 
+#down
 bind-key j select-pane -D
 #left
 bind-key h select-pane -L
@@ -108,11 +106,11 @@ bind ^l resizep -R 3 # ...
 # zoom pane <-> window
 #http://tmux.svn.sourceforge.net/viewvc/tmux/trunk/examples/tmux-zoom.sh
 #bind ^z run "tmux-zoom"
- 
+
 #鼠标配置 复制要加shift
 set -g mouse off
 
-#tpm tmux 插件管理 
+#tpm tmux 插件管理
 # examples:
 # set -g @plugin 'github_username/plugin_name'
 # set -g @plugin 'git@github.com/user/plugin'
@@ -137,4 +135,3 @@ set -g @colors-solarized '256'
 # Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
 run '~/.tmux/plugins/tpm/tpm'
 ```
-

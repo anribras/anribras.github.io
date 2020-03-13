@@ -3,10 +3,9 @@ layout: post
 title:
 modified:
 categories: Tech
- 
+
 tags: [web]
 
-  
 comments: true
 ---
 
@@ -19,9 +18,10 @@ comments: true
 
 ## 设置
 
-[nginx增强理解](https://www.digitalocean.com/community/tutorials/understanding-nginx-http-proxying-load-balancing-buffering-and-caching)
+[nginx 增强理解](https://www.digitalocean.com/community/tutorials/understanding-nginx-http-proxying-load-balancing-buffering-and-caching)
 
-nginx增加下面的配置:
+nginx 增加下面的配置:
+
 ```sh
     location /ver {
         proxy_http_version 1.1;
@@ -35,21 +35,20 @@ nginx增加下面的配置:
         proxy_pass http://localhost:9010;
     }
 ```
- 其中`http://localhost:9010`是ws的listening server.
 
- 当client访问`ws://server_name/ver`时，nginx将反向到ws server上.
+其中`http://localhost:9010`是 ws 的 listening server.
 
+当 client 访问`ws://server_name/ver`时，nginx 将反向到 ws server 上.
 
 特别注意`proxy_set_header Host $proxy_host;`的设置,之前不行就是因为这个地方没对.
 
-nginx默认就是这个设置，这里重新设置下，是因为nginx server里设置了`proxy_set_header Host $host;`
+nginx 默认就是这个设置，这里重新设置下，是因为 nginx server 里设置了`proxy_set_header Host $host;`
 
-proxy_set_header看这里(https://www.jianshu.com/p/0850db5af284)
+proxy_set_header 看这里<https://www.jianshu.com/p/0850db5af284>
 
-anyway, 是设置nginx给转发目的的http header的`HOST`字段
+anyway, 是设置 nginx 给转发目的的 http header 的`HOST`字段
 
-
-```
+```sh
 
 //设置HOST字段==原始http req header里的HOST
 proxy_set_header Host $http_host;
@@ -58,7 +57,7 @@ proxy_set_header Host $http_host;
 proxy_set_header Host $host;
 
 
-//设置HOST字段为proxy_pass 后跟着的HOST 
+//设置HOST字段为proxy_pass 后跟着的HOST
 proxy_set_header Host $proxy_host;
 //下面是proxy_host = 127.0.0.1
 1. proxy_pass http://localhost:9010
@@ -70,9 +69,10 @@ upstream  backends {
     server www.xxx.net
 }
 ```
-顺便说说upstream,这才是反向代理的精髓，比如大家都访问`www.xxx.net/res/`,通过upstream，把访问均衡到多个web server上. upstream可以选择很多`均衡策略`.
 
-```
+顺便说说 upstream,这才是反向代理的精髓，比如大家都访问`www.xxx.net/res/`,通过 upstream，把访问均衡到多个 web server 上. upstream 可以选择很多`均衡策略`.
+
+```sh
 server {
     listen *:80 default_server;
     server_name www.xxx.net;
@@ -91,10 +91,12 @@ upstream backends {
 
 }
 ```
+
 ## 原理
 
-要是知道websocket的握手是借用了http的,一开始的request header:
-```
+要是知道 websocket 的握手是借用了 http 的,一开始的 request header:
+
+```sh
  --- request header ---
 GET /chat HTTP/1.1
 Upgrade: websocket
@@ -105,8 +107,9 @@ Sec-WebSocket-Key: hj0eNqbhE/A0GkBXDRrYYw==
 Sec-WebSocket-Version: 13
 ```
 
-下面是respone字段:
-```
+下面是 respone 字段:
+
+```sh
   HTTP/1.1 101 Switching Protocols
 Content-Length: 0
 Upgrade: websocket
@@ -115,9 +118,12 @@ Server: TornadoServer/4.5.1
 Connection: Upgrade
 Date: Wed, 21 Jun 2017 03:29:14 GMT
 ```
-验证过程: 
-1. client发送随机key`Sec-WebSocket-Key`给server,
-2. server进行sha1哈希(+魔数),返回`Sec-Websocket-Accept`
+
+验证过程:
+
+1. client 发送随机 key`Sec-WebSocket-Key`给 server,
+2. server 进行 sha1 哈希(+魔数),返回`Sec-Websocket-Accept`
+
 ```py
     def compute_accept_value(key):
         """Computes the value for the Sec-WebSocket-Accept header,
@@ -128,8 +134,5 @@ Date: Wed, 21 Jun 2017 03:29:14 GMT
         sha1.update(b"258EAFA5-E914-47DA-95CA-C5AB0DC85B11")  # Magic value
         return native_str(base64.b64encode(sha1.digest()))
 ```
-3. client进行同样的操作，验证了server,握手完成
 
-
-
-
+client 进行同样的操作，验证了 server,握手完成

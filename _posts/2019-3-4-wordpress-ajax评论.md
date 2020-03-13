@@ -3,18 +3,24 @@ layout: post
 title:
 modified:
 categories: Tech
- 
+
 tags: [wordpress]
 
 comments: true
 ---
 
+<!-- TOC -->
 
-## 常规ajax评论
+- [常规 ajax 评论](#常规-ajax-评论)
+- [自己的做法](#自己的做法)
 
-ajax js端:　提交局部更新的要求，server端更新dom结构，返回给js，js修改dom.
+<!-- /TOC -->
 
-首先要有这个commentform的class,即ajax提交评论的数据 ，来自设计的表单.
+## 常规 ajax 评论
+
+ajax js 端:　提交局部更新的要求，server 端更新 dom 结构，返回给 js，js 修改 dom.
+
+首先要有这个 commentform 的 class,即 ajax 提交评论的数据 ，来自设计的表单.
 
 ```js
 jQuery(document).on("submit", "#commentform", function() {
@@ -22,9 +28,10 @@ jQuery(document).on("submit", "#commentform", function() {
     error: function(request){
         ...}
     success: fuction(data) {...
-     //data是服务端处理ajax返回的局部dom数据. 
+     //data是服务端处理ajax返回的局部dom数据.
     if (parent != '0') {
-        jQuery('#comment-'+parent).append('<ul class="children mt-3 mt-md-4">' + data + '</ul>');
+        jQuery('#comment-'+parent).append('<ul class="children mt-3 mt-md-4">'
+        + data + '</ul>');
     } else if ( jQuery('.comment-list').length != '0') {
         if( globals.new_comment_position == 'desc' ){
             jQuery('.comment-list').prepend(data)
@@ -41,6 +48,7 @@ jQuery(document).on("submit", "#commentform", function() {
 ```
 
 服务端处理都干嘛:
+
 ```php
 add_action('wp_ajax_nopriv_ajax_comment', 'ajax_comment_callback');
 add_action('wp_ajax_ajax_comment', 'ajax_comment_callback');
@@ -56,24 +64,27 @@ function ajax_comment_callback(){
 
 ## 自己的做法
 
+server 端,如果仅是 dom:
 
-server端,如果仅是dom:
 ```php
-function ff_ajax_comment_callback(){ 
+function ff_ajax_comment_callback(){
     //执行模板xx，并返回执行结果(h5).
     ?> <?php get_template_part('xxx'); ?> <?php die();
 }
 ```
+
 这个代码有意思:
+
 ```sh
 在php里混编html;用`?><?php`; 也就是把h5代码生成好了
 html里又需要混编php函数,用`<?php ?>`.
 `get_template_part('xxx')`: 类似include require
 ```
 
-因为同时还需要更新评论数，做了１个json内嵌html的混编来作为ajax的response，使用方式又不一样了:
+因为同时还需要更新评论数，做了１个 json 内嵌 html 的混编来作为 ajax 的 response，使用方式又不一样了:
+
 ```php
-function ff_ajax_comment_callback(){ 
+function ff_ajax_comment_callback(){
     wp_send_json(
             json_encode(
                 array(
@@ -95,7 +106,9 @@ function load_template_part($template_name, $part_name=null) {
 }
 
 ```
-js端将接收到的数据也json化，然后取字段就好了:
+
+js 端将接收到的数据也 json 化，然后取字段就好了:
+
 ```js
 js_function(data) {
     var data = JSON.parse(data);
@@ -103,5 +116,3 @@ js_function(data) {
     console.log(data['comments_number']; //This is json key-value
 }
 ```
-
-

@@ -7,10 +7,9 @@ tags: [web]
 comments: true
 ---
 
+dnmp 环境，nginx php72 仅在容器主机内.
 
-dnmp环境，nginx php72仅在容器主机内.
-
-结果laravel guzzlehttp 访问为localhost时，打死不成功.
+结果 laravel guzzlehttp 访问为 localhost 时，打死不成功.
 
 ```php
 function api($method = 'POST', $url = '', $params = [])
@@ -43,17 +42,17 @@ function api($method = 'POST', $url = '', $params = [])
 }
 ```
 
-排查了好久，发现直接设置上面的`base_url`为nginx容器内ip(172.21.0.x)时，可以的!
+排查了好久，发现直接设置上面的`base_url`为 nginx 容器内 ip(172.21.0.x)时，可以的!
 
-经过确认是docker-compose启动nginx时，应该选择network_mode:host
+经过确认是 docker-compose 启动 nginx 时，应该选择 network_mode:host
+
 ```yml
 network_mode: host
 #networks:
-    #- default
+#- default
 ```
 
-为啥这么做呢? 看完下面2个帖子就大概知道了.
+为啥这么做呢? 看完下面 2 个帖子就大概知道了.
 
 <https://laracasts.com/discuss/channels/laravel/guzzlehttp-exception-connectexception-curl-error-7-failed-to-connect-to-localhost-port-8087-connection-refused>
 <https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach>
-
