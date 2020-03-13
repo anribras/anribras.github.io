@@ -8,11 +8,12 @@ comments: true
 ---
 <!-- TOC -->
 
-- [Carlife Phone 结构分析](#carlife-phone-结构分析)
+- [Carlife Vehicle](#carlife-vehicle)
     - [Module](#module)
     - [CTranRecvPackageProcess](#ctranrecvpackageprocess)
     - [ConnectionManager](#connectionmanager)
-- [Carlife AOA](#carlife-aoa)
+- [AOA 简单协议](#aoa-简单协议)
+- [Carlife Phone](#carlife-phone)
     - [启动流程](#启动流程)
     - [ConnectionClient](#connectionclient)
     - [Connect Service](#connect-service)
@@ -24,11 +25,12 @@ comments: true
         - [SocketReadThread](#socketreadthread)
         - [AOAAccessorySetup](#aoaaccessorysetup-1)
     - [MsgHandlerCenter](#msghandlercenter)
+    - [待确认项](#待确认项)
 
 <!-- /TOC -->
 
 
-# Carlife Phone 结构分析
+# Carlife Vehicle
 
 ## Module
 
@@ -64,7 +66,7 @@ CConnectManager::getInstance()->recvXXXData
 CConnectManager::getInstance()->createXXXSocket
 ```
 
-# Carlife AOA
+# AOA 简单协议
 
 usb 最外层:
 
@@ -76,6 +78,9 @@ carlife message:
 
 data就是pb序列流
 
+# Carlife Phone
+
+非官方,借鉴下别人的思路.
 
 ## 启动流程
 
@@ -151,8 +156,12 @@ Handler mMainActivityHandler收到MSG_ANDROID_DEBUG_CONNECT_STATUS_LISTENED:
         AOAConnectThread 
 
 ```
+
 ### ConnectServiceProxy
-真正的Service消息处理中心
+
+真正的Service消息处理的代理.
+
+完成Service到AOA底层架构的转发
 
 ## A0A
 
@@ -232,4 +241,11 @@ mFileOutputStream = new FileOutputStream(fileDescriptor);
 ```
 MSG_ANDROID_DEBUG_CONNECT_STATUS_LISTENED:
 
+```
+
+
+## 待确认项
+```sh
+1. SDK 要不要包含整个Service的设计?
+2. 如果要, SDK 回调的必定是Service Client的数据?
 ```
